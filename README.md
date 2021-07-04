@@ -97,22 +97,31 @@ ex) `vibro`
 - `ry`: y 角度
 - `rz`: z 角度
 
-# 特殊コマンド「fill」
-fill は発展的な特殊コマンドです。例えば、マッパー上で「random3」を ある区間何回も繰り返す場合、それをすべて書くのは面倒です。そのような場合、例えば「fill4,random3」と書くことで、同じ記述をすることができます。つまり、以下の画像はプログラム上では同じものとして認識されます。
-
-fill の後に続文字列をグリッド分割数として認識します。つまり fill4,random3 は次のブックマークまで、マッパー上のグリッドの 1/4 間隔で「random3」というブックマークを記入し続けます。
-
-ex) `fill4,random3,zoom2`（グリッド 1/4 間隔で「`random3,zoom2`」を記入し続ける）
-
-ex) `fill2,mirror`（グリッド 1/2 間隔で「`mirror`」を記入し続ける）
-
 # 実行方法
 Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマップフォルダに入れてください。
 
-本ソフトは、ブックマークの編集中にカスタムマップのデータを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
+本ソフトは、ブックマークの編集中にカスタムマップの譜面データを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
 
 ブックマークでスクリプトを記入した dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
 
-`C:¥Program Files (x86)¥Steam¥steamapps¥common¥Beat Saber¥UserData¥CameraPlus¥Scripts` に `Scriptmapper_output.json` が出力されていれば成功です。後は、`camerascript.cfg` の `movementScriptPath` を`”Scriptmapper_output.json”`に指定すれば、マッピングした通りにカメラが動作するはずです。
+`C:¥Program Files (x86)¥Steam¥steamapps¥common¥Beat Saber¥UserData¥CameraPlus¥Scripts` に `Scriptmapper_output.json` が出力されていれば成功です。後は、`camerascript.cfg` の `movementScriptPath` を`”Scriptmapper_output.json”`に指定すれば、マッピングした通りにカメラが動作してくれるはずです！
 
 また、同時にカスタムマップフォルダに log が生成されます。生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。
+
+---
+
+※これより下の内容は発展的な内容になります。
+
+# 特殊コマンド
+
+以下はスクリプトそのものを対象とする、発展的な特殊コマンドです。ある程度ツールの操作に慣れた上で、操作を省略するためのものです。
+
+## fill
+
+スクリプトを反復複製します。例えば、`random3`をある区間何回も繰り返す場合、それをすべて書くのは面倒です。そのような場合、例えば`fill4,random3`と書くことで、同じ記述をすることができます。つまり、以下の画像はプログラム上では同じものとして認識されます。
+
+fill の後に続文字列をグリッド分割数として認識します。つまり`fill4,random3`は次のブックマークまで、マッパー上のグリッドの 1/4 間隔で`random3`というブックマークを記入し続けます。
+
+ex) `fill4,random3,zoom2`（グリッド 1/4 間隔で`random3,zoom2`を記入し続ける）
+
+ex) `fill2,mirror`（グリッド 1/2 間隔で`mirror`を記入し続ける）
