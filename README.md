@@ -111,7 +111,7 @@ Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマッ�
 
 本ソフトは、ブックマークの編集中にカスタムマップのデータを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
 
-ブックマークでスクリプトを記入して dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
+ブックマークでスクリプトを記入した dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
 
 `C:¥Program Files (x86)¥Steam¥steamapps¥common¥Beat Saber¥UserData¥CameraPlus¥Scripts` に `Scriptmapper_output.json` が出力されていれば成功です。後は、`camerascript.cfg` の `movementScriptPath` を`”Scriptmapper_output.json”`に指定すれば、マッピングした通りにカメラが動作するはずです。
 

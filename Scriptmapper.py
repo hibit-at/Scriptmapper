@@ -1,12 +1,12 @@
-import json
-import csv
 import copy
+import csv
+import json
 import os
 import pathlib
 import sys
-from random import random as rd
-from math import sqrt, degrees, atan2, pi, floor, cos, sin
 from datetime import date, datetime
+from math import atan2, cos, degrees, floor, pi, sin, sqrt
+from random import random as rd
 
 # ログファイルの作成
 
@@ -57,6 +57,12 @@ template = {
 }
 
 
+def create_template():
+    move_tmp = copy.deepcopy(template['Movements'][0])
+    move_tmp['EaseTransition'] = False
+    return move_tmp
+
+
 def random(r):
     theta = rd()*2*pi
     phi = rd()/3*pi+pi/18
@@ -91,15 +97,12 @@ def default():
     return pos, rot
 
 
-def create_template():
-    move_tmp = copy.deepcopy(template['Movements'][0])
-    move_tmp['EaseTransition'] = False
-    return move_tmp
-
-
 def generate(text):
     global last_pos_rot
-    if text[:6] == 'random':
+    if text[:3] == 'def':
+        print_log('default コマンドを検出')
+        return default()
+    elif text[:6] == 'random':
         param = float(text[6:])
         print_log('random コマンドを検出', param)
         return random(param)
@@ -148,9 +151,6 @@ def generate(text):
         print_log('before コマンドを検出')
         new_pos_rot = copy.deepcopy(last_pos_rot)
         return new_pos_rot
-    elif text[:3] == 'def':
-        print_log('default コマンドを検出')
-        return default()
     else:
         if text in manual.keys():
             print_log(f'オリジナルコマンド {text} を検出')
@@ -184,7 +184,7 @@ path_dir = path_obj.parent
 
 isWIP = path_obj.parent.parent
 
-if not isWIP.name == 'CustomWIPLevels':
+if isWIP.name != 'CustomWIPLevels':
     print_log('WIPフォルダ直下にありません。プログラムを終了します。')
     wait = input()
     exit()
@@ -288,7 +288,6 @@ for b in timed_b:
     text = b['text']
     parse = text.split(',')
     if len(parse) == 1:
-        print_log(f'1つのスクリプト {parse[0]} を確認。startとendに同じ値を設定します。')
         command = parse[0]
         # rotate
         if command[:6] == 'rotate':
@@ -354,6 +353,7 @@ for b in timed_b:
                 print_log(new_line['StartPos'], new_line['StartRot'])
                 data['Movements'].append(new_line)
             continue
+        print_log(f'1つのスクリプト {parse[0]} を確認。startとendに同じ値を設定します。')
         new_line = create_template()
         pos, rot = generate(command)
         last_pos_rot = (pos, rot)
@@ -368,7 +368,7 @@ for b in timed_b:
         data['Movements'].append(new_line)
     elif len(parse) == 2:
         print_log(
-            f'2つのスクリプト {parse[0]} と {parse[1] }を確認。startとendに各コマンドを適用します。')
+            f'2つのスクリプト {parse[0]} と {parse[1]}を確認。startとendに各コマンドを適用します。')
         start_command = parse[0]
         end_command = parse[1]
         new_line = create_template()
