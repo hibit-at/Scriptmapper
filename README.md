@@ -11,7 +11,7 @@
 - コマンドが 1 つのみの場合は、期間中ずっと同じ座標・角度になります
 - コマンドが 2 つある場合は、1 つ目のコマンドから 2 つ目のコマンドへ連続的に変化します。
 
-# プリセットコマンド-1
+# プリセットコマンド　基本編
 スクリプトの先頭に以下の文字が書かれていた場合、プリセットコマンドとして認識されます。
 
 ## def
@@ -29,7 +29,45 @@ ex) `random3`, `random4.5`
 
 ex) `front1`
 
-# プリセットコマンド-2
+# オリジナルコマンド
+デフォルトコマンドで表現が難しい場合は、自分でパラメータを指定したオリジナルコマンドを作成します。オリジナルコマンドは以下のような csv ファイルを用意し「`input.csv`」と名付けます。（それ以外の名前ではプログラムが認識しません）。
+
+![fig2](https://user-images.githubusercontent.com/43929933/124432665-d6a23480-ddac-11eb-9735-7a414c847bab.png)
+
+ヘッダー（1行目）には以下の列名を記入してください。
+
+- `label`: コマンドとして認識される名前。これと同じ名前を、ブックマークでは記入
+することになります。
+- `px`: カメラの x 座標（メートル）
+- `py`: y 座標
+- `pz`: z 座標
+- `lookat`: ここを `true` にした場合、自動的にアバターを向く角度を指定します。以降に記入する角度のパラメータは無視されます。
+- `rx`: カメラの x 角度（0～360 度）
+- `ry`: y 角度
+- `rz`: z 角度
+
+# 実行方法
+Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマップフォルダに入れてください。
+
+![fig4](https://user-images.githubusercontent.com/43929933/124432683-dace5200-ddac-11eb-8a8e-b63a431fed8a.png)
+
+本ソフトは、ブックマークの編集中にカスタムマップの譜面データを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
+
+ブックマークでスクリプトを記入した dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
+
+![fig5](https://user-images.githubusercontent.com/43929933/124432690-dc981580-ddac-11eb-82af-f44095647660.png)
+
+`C:¥Program Files (x86)¥Steam¥steamapps¥common¥Beat Saber¥UserData¥CameraPlus¥Scripts` に `Scriptmapper_output.json` が出力されていれば成功です。後は、`camerascript.cfg` の `movementScriptPath` を`”Scriptmapper_output.json”`に指定すれば、マッピングした通りにカメラが動作してくれるはずです！
+
+また、同時にカスタムマップフォルダに log が生成されます。生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。
+
+![fig6](https://user-images.githubusercontent.com/43929933/124432709-e02b9c80-ddac-11eb-961a-9613fc0f6da8.png)
+
+---
+
+※これより下の内容は発展的な内容になります。
+
+# プリセットコマンド-中級編
 
 以下のコマンドは、デフォルトコマンドですが、直前の座標に操作を加えるものです。
 
@@ -69,7 +107,7 @@ ex) `slide.5`
 
 ex) `shift.5`
 
-# プリセットコマンド-3
+# プリセットコマンド　上級編
 
 以下のコマンドは単一の座標を返すのではなく、一定の連続した動きを記述するコマンドです。
 
@@ -84,43 +122,9 @@ ex) `rotate4/3` （半径 4m、高さ 3m の円軌道）
 
 ex) `vibro`
 
-# オリジナルコマンド
-デフォルトコマンドで表現が難しい場合は、自分でパラメータを指定したオリジナルコマンドを作成します。オリジナルコマンドは以下のような csv ファイルを用意し「`input.csv`」と名付けます。（それ以外の名前ではプログラムが認識しません）。
-
-![fig2](https://user-images.githubusercontent.com/43929933/124432665-d6a23480-ddac-11eb-9735-7a414c847bab.png)
-
-ヘッダー（1行目）には以下の列名を記入してください。
-
-- `label`: コマンドとして認識される名前。これと同じ名前を、ブックマークでは記入
-することになります。
-- `px`: カメラの x 座標（メートル）
-- `py`: y 座標
-- `pz`: z 座標
-- `lookat`: ここを `true` にした場合、自動的にアバターを向く角度を指定します。以降に記入する角度のパラメータは無視されます。
-- `rx`: カメラの x 角度（0～360 度）
-- `ry`: y 角度
-- `rz`: z 角度
-
-# 実行方法
-Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマップフォルダに入れてください。
-
-![fig4](https://user-images.githubusercontent.com/43929933/124432683-dace5200-ddac-11eb-8a8e-b63a431fed8a.png)
-
-本ソフトは、ブックマークの編集中にカスタムマップの譜面データを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
-
-ブックマークでスクリプトを記入した dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
-
-![fig5](https://user-images.githubusercontent.com/43929933/124432690-dc981580-ddac-11eb-82af-f44095647660.png)
-
-`C:¥Program Files (x86)¥Steam¥steamapps¥common¥Beat Saber¥UserData¥CameraPlus¥Scripts` に `Scriptmapper_output.json` が出力されていれば成功です。後は、`camerascript.cfg` の `movementScriptPath` を`”Scriptmapper_output.json”`に指定すれば、マッピングした通りにカメラが動作してくれるはずです！
-
-また、同時にカスタムマップフォルダに log が生成されます。生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。
-
-![fig6](https://user-images.githubusercontent.com/43929933/124432709-e02b9c80-ddac-11eb-961a-9613fc0f6da8.png)
-
 ---
 
-※これより下の内容は発展的な内容になります。
+※これより下の内容は更にマニアックになります
 
 # 特殊コマンド
 

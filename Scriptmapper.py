@@ -58,8 +58,8 @@ def create_template():
 
 def random(r):
     theta = rd()*2*pi
-    phi = rd()/3*pi+pi/18
-    angle = atan2(r*sin(phi)-1.0, r)
+    phi = rd()/4*pi
+    angle = atan2(r*sin(phi)-1.5, r)
     pos = {'x': round(r*cos(phi)*cos(theta), 1),
            'y': round(r*sin(phi), 1),
            'z': round(r*cos(phi)*sin(theta), 1)}
@@ -96,11 +96,11 @@ def generate(text):
         print_log('default コマンドを検出')
         return default()
     elif text[:6] == 'random':
-        param = float(text[6:])
+        param = eval(text[6:])
         print_log('random コマンドを検出', param)
         return random(param)
     elif text[:5] == 'front':
-        param = float(text[5:])
+        param = eval(text[5:])
         print_log('front コマンドを検出', param)
         return front(param)
     elif text[:6] == "mirror":
@@ -113,29 +113,41 @@ def generate(text):
         if len(text) == 4:
             param = 2
         else:
-            param = float(text[4:])
+            param = eval(text[4:])
         print_log('zoom コマンドを検出', param)
         zoom_pos_rot = copy.deepcopy(last_pos_rot)
         zoom_pos_rot[0]['x'] /= param
-        zoom_pos_rot[0]['y'] -= 1.0
+        zoom_pos_rot[0]['y'] -= 1.5
         zoom_pos_rot[0]['y'] /= param
-        zoom_pos_rot[0]['y'] += 1.0
+        zoom_pos_rot[0]['y'] += 1.5
         zoom_pos_rot[0]['z'] /= param
         return zoom_pos_rot
     elif text[:4] == 'spin':
         print_log('spin コマンドを検出')
-        param = float(text[4:])
+        param = eval(text[4:])
         spin_pos_rot = copy.deepcopy(last_pos_rot)
         spin_pos_rot[1]['z'] += param
         return spin_pos_rot
+    elif text[:5] == 'screw':
+        print_log('screw コマンドを検出')
+        param = eval(text[5:])
+        screw_pos_rot = copy.deepcopy(last_pos_rot)
+        scale = param+1
+        screw_pos_rot[0]['x'] /= scale
+        screw_pos_rot[0]['y'] -= 1.5
+        screw_pos_rot[0]['y'] /= scale
+        screw_pos_rot[0]['y'] += 1.5
+        screw_pos_rot[0]['z'] /= scale
+        screw_pos_rot[1]['z'] += 10*param
+        return screw_pos_rot
     elif text[:5] == 'slide':
-        param = float(text[5:])
+        param = eval(text[5:])
         print_log('slide コマンドを検出', param)
         slide_pos_rot = copy.deepcopy(last_pos_rot)
         slide_pos_rot[0]['x'] += param
         return slide_pos_rot
     elif text[:5] == 'shift':
-        param = float(text[5:])
+        param = eval(text[5:])
         print_log('shift コマンドを検出', param)
         shift_pos_rot = copy.deepcopy(last_pos_rot)
         shift_pos_rot[0]['y'] += param
@@ -156,7 +168,7 @@ def generate(text):
                 theta = atan2(cz, cx)
                 theta = -int(degrees(theta))+270
                 r = sqrt(cx**2+cz**2)
-                angle = int(degrees(atan2(cy-1.0, r)))
+                angle = int(degrees(atan2(cy-1.5, r)))
                 rot = {'x': angle, 'y': theta, 'z': 0}
             else:
                 rot = {'x': float(command['rx']), 'y': float(
@@ -257,7 +269,7 @@ for i in range(size-1):
     text = filled_b[i]['text']
     start_grid = filled_b[i]['time']
     if text[:4] == 'copy':
-        param = float(text.split(',')[0][4:])
+        param = eval(text.split(',')[0][4:])
         print_log('copy を検出', param)
         text_pattern = ','.join(text.split(',')[1:])
         end_grid = filled_b[i+1]['time']
@@ -275,6 +287,7 @@ for i in range(size-1):
                 print_log(f'{t_grid} -> {append_grid} {t_text}')
     else:
         copied_b.append({'time': start_grid, 'text': text})
+copied_b.append({'time':dummyend_grid, 'text': 'dummyend'})
 print_log('STEP1 を終了しました。\n')
 
 
@@ -287,7 +300,6 @@ for i in range(size):
     if i == 0 and time != 0:
         final_b.append({'time': 0, 'text': 'def'})
     final_b.append({'time': time, 'text': text})
-final_b.append({'time':dummyend_grid, 'text': 'dummyend'})
 print_log(f'開始グリッド {final_b[0]["time"]}')
 print_log(f'最後の開始グリッド {final_b[-2]["time"]}')
 print_log(f'ダミーエンドグリッド {final_b[-1]["time"]}')
