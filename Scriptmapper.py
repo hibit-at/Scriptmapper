@@ -202,7 +202,7 @@ manual = {}
 input_path = os.path.join(path_dir, 'input.csv')
 if os.path.exists(input_path):
     print_log('input.csv を確認しました。オリジナルコマンドを追加します。')
-    data = csv.DictReader(open('input.csv', 'r', encoding='utf-8-sig'))
+    data = csv.DictReader(open(input_path, 'r', encoding='utf-8-sig'))
     for d in data:
         manual[d['label']] = d
         print_log(d)
