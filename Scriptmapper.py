@@ -99,12 +99,13 @@ def diag(r):
     pos = {'x': r/1.4,
            'y': 3.0,
            'z': -r/1.4}
+    angle = degrees(atan2(1.5, abs(r)))
     if r >= 0:
-        rot = {'x': 0,
+        rot = {'x': angle,
                'y': -45,
                'z': 0}
     if r < 0:
-        rot = {'x': 0,
+        rot = {'x': angle,
                'y': 135,
                'z': 0}
     return pos, rot
