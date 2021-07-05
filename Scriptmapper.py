@@ -187,7 +187,10 @@ path_dir = path_obj.parent
 
 # ログファイルの作成
 now = str(datetime.now()).replace(':', '_')[:19]
-log_path = os.path.join(path_dir, f'log_{now}.txt')
+log_folder_path = os.path.join(path_dir,'logs')
+if not os.path.exists(log_folder_path):
+    os.mkdir(log_folder_path)
+log_path = os.path.join(log_folder_path, f'log_{now}.txt')
 with open(log_path, 'w', encoding='utf-8') as f:
     f.write(f"logfile at {now}\n\n")
 

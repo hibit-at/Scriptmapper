@@ -4,6 +4,23 @@
 
 ![fig1](https://user-images.githubusercontent.com/43929933/124432656-d4d87100-ddac-11eb-810c-150ec4d64882.png)
 
+# 実行方法
+Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマップフォルダに入れてください。
+
+![fig4](https://user-images.githubusercontent.com/43929933/124432683-dace5200-ddac-11eb-8a8e-b63a431fed8a.png)
+
+本ソフトは、ブックマークの編集中にカスタムマップの譜面データを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
+
+ブックマークでスクリプトを記入した dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
+
+![fig5](https://user-images.githubusercontent.com/43929933/124432690-dc981580-ddac-11eb-82af-f44095647660.png)
+
+`C:¥Program Files (x86)¥Steam¥steamapps¥common¥Beat Saber¥UserData¥CameraPlus¥Scripts` に `Scriptmapper_output.json` が出力されていれば成功です。後は、`camerascript.cfg` の `movementScriptPath` を`”Scriptmapper_output.json”`に指定すれば、マッピングした通りにカメラが動作してくれるはずです！
+
+また、同時にカスタムマップフォルダに log が生成されます。生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。
+
+![fig6](https://user-images.githubusercontent.com/43929933/124432709-e02b9c80-ddac-11eb-961a-9613fc0f6da8.png)
+
 # コマンドの持続期間
 
 - スクリプトは「`,`」（カンマ）によって 1 つまたは 2 つのコマンドに区切られます。
@@ -45,23 +62,6 @@ ex) `front1`
 - `rx`: カメラの x 角度（0～360 度）
 - `ry`: y 角度
 - `rz`: z 角度
-
-# 実行方法
-Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマップフォルダに入れてください。
-
-![fig4](https://user-images.githubusercontent.com/43929933/124432683-dace5200-ddac-11eb-8a8e-b63a431fed8a.png)
-
-本ソフトは、ブックマークの編集中にカスタムマップの譜面データを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
-
-ブックマークでスクリプトを記入した dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
-
-![fig5](https://user-images.githubusercontent.com/43929933/124432690-dc981580-ddac-11eb-82af-f44095647660.png)
-
-`C:¥Program Files (x86)¥Steam¥steamapps¥common¥Beat Saber¥UserData¥CameraPlus¥Scripts` に `Scriptmapper_output.json` が出力されていれば成功です。後は、`camerascript.cfg` の `movementScriptPath` を`”Scriptmapper_output.json”`に指定すれば、マッピングした通りにカメラが動作してくれるはずです！
-
-また、同時にカスタムマップフォルダに log が生成されます。生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。
-
-![fig6](https://user-images.githubusercontent.com/43929933/124432709-e02b9c80-ddac-11eb-961a-9613fc0f6da8.png)
 
 ---
 
