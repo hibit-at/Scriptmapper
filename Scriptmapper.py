@@ -43,10 +43,11 @@ template = {
 
 
 def print_log(*args):
-    for a in args:
-        print(a)
-        with open(log_path, 'a', encoding='utf-8') as f:
-            f.write(str(a)+'\n')
+    str_args = [str(a) for a in args]
+    text = ' '.join(str_args)
+    print(text)
+    with open(log_path, 'a', encoding='utf-8') as f:
+        f.write(text+'\n')
 
 
 def create_template():
@@ -219,52 +220,21 @@ if '_customData' in j.keys():
 else:
     raw_b = j['_bookmarks']
 
-# 0から始まりマップの終わりまでの区間を設定する（longed_b）
-
-
-# 特殊コマンドcopyをパース（copied_b）
-print_log('STEP1 copy コマンドの処理')
-copied_b = []
+# 特殊コマンドfillをパース（filled_b）
+print_log('STEP fill コマンドの処理')
+filled_b = []
 size = len(raw_b)
 for i in range(size-1):
     text = raw_b[i]['_name']
     start_grid = raw_b[i]['_time']
-    if text[:4] == 'copy':
-        param = float(text.split(',')[0][4:])
-        print_log('copy を検出', param)
-        text_pattern = ','.join(text.split(',')[1:])
-        end_grid = raw_b[i+1]['_time']
-        t_start_grid = param
-        t_end_grid = param + end_grid - start_grid
-        print_log(f'グリッド{start_grid}～{end_grid}のスクリプトを、グリッド{t_start_grid}～{t_end_grid}からコピーします')
-        tmp_b = copy.deepcopy(copied_b)
-        for t in tmp_b:
-            t_grid = t['time']
-            t_text = t['text']
-            if t_start_grid <= t_grid and t_grid < t_end_grid:
-                append_grid = start_grid + t_grid - t_start_grid
-                copied_b.append({'time' : append_grid, 'text' : t_text})
-                print_log(f'{t_grid} -> {append_grid} {t_text}')
-    else:
-        copied_b.append({'time': start_grid, 'text': text})
-print_log('STEP1 を終了しました。\n')
-
-print(copied_b)
-
-# 特殊コマンドfillをパース（filled_b）
-print_log('STEP2 fill コマンドの処理')
-filled_b = []
-size = len(copied_b)
-for i in range(size-1):
-    text = copied_b[i]['text']
-    start_grid = copied_b[i]['time']
     if text[:4] == 'fill':
-        param = float(text.split(',')[0][4:])
+        param = eval(text.split(',')[0][4:])
         print_log('特殊コマンド fill を検出', param)
         text_pattern = ','.join(text.split(',')[1:])
-        span = 1/param
-        end_grid = copied_b[i+1]['time']
-        print_log(f'スクリプト {text_pattern} をグリッド {start_grid} から {end_grid} まで{span}の間隔で敷き詰めます。')
+        span = param
+        end_grid = raw_b[i+1]['_time']
+        print_log(
+            f'スクリプト {text_pattern} をグリッド {start_grid} から {end_grid} まで{span}の間隔で敷き詰めます。')
         cnt = 0
         current_grid = start_grid
         while current_grid < end_grid:
@@ -275,14 +245,43 @@ for i in range(size-1):
         print_log(f'n = {cnt}')
     else:
         filled_b.append({'time': start_grid, 'text': text})
-print_log('STEP2 を終了しました。\n')
+print_log('STEP を終了しました。\n')
+
+# 特殊コマンドcopyをパース（copied_b）
+print_log('STEP copy コマンドの処理')
+copied_b = []
+size = len(filled_b)
+for i in range(size-1):
+    text = filled_b[i]['text']
+    start_grid = filled_b[i]['time']
+    if text[:4] == 'copy':
+        param = float(text.split(',')[0][4:])
+        print_log('copy を検出', param)
+        text_pattern = ','.join(text.split(',')[1:])
+        end_grid = filled_b[i+1]['time']
+        t_start_grid = param
+        t_end_grid = param + end_grid - start_grid
+        print_log(
+            f'グリッド{start_grid}～{end_grid}のスクリプトを、グリッド{t_start_grid}～{t_end_grid}からコピーします')
+        tmp_b = copy.deepcopy(copied_b)
+        for t in tmp_b:
+            t_grid = t['time']
+            t_text = t['text']
+            if t_start_grid <= t_grid and t_grid < t_end_grid:
+                append_grid = start_grid + t_grid - t_start_grid
+                copied_b.append({'time': append_grid, 'text': t_text})
+                print_log(f'{t_grid} -> {append_grid} {t_text}')
+    else:
+        copied_b.append({'time': start_grid, 'text': text})
+print_log('STEP1 を終了しました。\n')
+
 
 print_log('STEP3 マップの開始と終了を設定')
 final_b = []
-size = len(filled_b)
+size = len(copied_b)
 for i in range(size):
-    time = filled_b[i]['time']
-    text = filled_b[i]['text']
+    time = copied_b[i]['time']
+    text = copied_b[i]['text']
     if i == 0 and time != 0:
         final_b.append({'time': 0, 'text': 'def'})
     final_b.append({'time': time, 'text': text})
@@ -293,7 +292,7 @@ print_log(f'終了グリッド {final_b[-1]["time"]}')
 print_log('STEP3を終了しました\n')
 
 # 最終的なグリッド
-print_log('特殊コマンドのパースを完了。最終的なスクリプトは以下になります。')
+print_log('特殊コマンドのパースを完了。最終的なスクリプトは以下になります。\n')
 for b in final_b:
     grid = b['time']
     text = b['text']
@@ -308,15 +307,11 @@ for i in range(size-1):
     text = final_b[i]['text']
     timed_b.append({'dur': dur*60/bpm, 'text': text})
 
-print(timed_b)
-
+print_log('\nスクリプトからコマンドへの変換を行います。')
 data = copy.deepcopy(template)
 data['Movements'] = []
-
-last_pos_rot = ()
-
+last_pos_rot = default()
 cnt = 0
-
 for b in timed_b:
     cnt += 1
     print_log(f'\n{cnt}番目のスクリプト原文を確認中...')
@@ -348,10 +343,10 @@ for b in timed_b:
                 pz = round(r*sin(theta)+1, 3)
                 rx = degrees(angle)
                 ry = -degrees(theta)+270
-                print_log({'x': px, 'y': h, 'z': pz},
-                          {'x': rx, 'y': ry, 'z': 0})
                 new_line['StartPos'] = {'x': px, 'y': h, 'z': pz}
                 new_line['StartRot'] = {'x': rx, 'y': ry, 'z': 0}
+                print_log(
+                    f'POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
                 px = round(r*cos(next_theta), 3)
                 pz = round(r*sin(next_theta)+1, 3)
                 rx = degrees(angle)
@@ -385,14 +380,15 @@ for b in timed_b:
                 new_line['EndPos'] = new_line['StartPos']
                 new_line['EndRot'] = new_line['StartRot']
                 new_line['Duration'] = s
-                print_log(new_line['StartPos'], new_line['StartRot'])
+                print_log(
+                    f'POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
                 data['Movements'].append(new_line)
             continue
-        print_log(f'1つのスクリプト {parse[0]} を確認。startとendに同じ値を設定します。')
+        print_log(f'単一のスクリプト {parse[0]} を確認。startとendに同じ値を設定します。')
         new_line = create_template()
         pos, rot = generate(command)
         last_pos_rot = (pos, rot)
-        print_log(pos, rot)
+        print_log(f'POS{pos} ROT{rot}')
         new_line['StartPos'] = pos
         new_line['StartRot'] = rot
         new_line['EndPos'] = pos
@@ -408,12 +404,12 @@ for b in timed_b:
         end_command = parse[1]
         new_line = create_template()
         pos, rot = generate(start_command)
-        print_log(pos, rot)
+        print_log(f'POS{pos} ROT{rot}')
         last_pos_rot = (pos, rot)
         new_line['StartPos'] = pos
         new_line['StartRot'] = rot
         pos, rot = generate(end_command)
-        print_log(pos, rot)
+        print_log(f'POS{pos} ROT{rot}')
         last_pos_rot = (pos, rot)
         new_line['EndPos'] = pos
         new_line['EndRot'] = rot
