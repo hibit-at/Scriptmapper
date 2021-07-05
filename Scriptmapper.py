@@ -444,7 +444,9 @@ print_log(f'\nスクリプト占有時間 {int(debug//60)} m {int(debug%60)} s �
 
 print_log('\nソフト内部でのjsonデータの作成に成功しました。')
 
-target_path = 'C:\\Program Files (x86)\\Steam\\steamapps\\common\\Beat Saber\\UserData\\CameraPlus\\Scripts\\Scriptmapper_output.json'
+root_dir = path_dir.parent.parent.parent
+target_path = os.path.join(root_dir,'UserData','CameraPlus','Scripts','Scriptmapper_output.json')
+print_log(target_path)
 json.dump(data, open(target_path, 'w'), indent=4)
 
 print_log('\nファイルの書き出しを正常に完了しました。')
