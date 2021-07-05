@@ -197,17 +197,18 @@ if not os.path.exists(info_path):
     print_log('info.dat が見つかりません。プログラムを終了します。')
     exit()
 
-f = open('info.dat', 'rb')
+f = open(info_path, 'rb')
 j = json.load(f)
 
 bpm = j['_beatsPerMinute']
 print_log('bpmを計測', bpm, '')
 
+manual = {}
+
 if os.path.exists('input.csv'):
 
     print_log('input.csv を確認しました。オリジナルコマンドを追加します。')
     data = csv.DictReader(open('input.csv', 'r', encoding='utf-8-sig'))
-    manual = {}
 
     for d in data:
         manual[d['label']] = d
