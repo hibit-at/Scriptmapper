@@ -86,13 +86,14 @@ def side(r):
            'z': 0}
     if r >= 0:
         rot = {'x': 0,
-            'y': -90,
-            'z': 0}
+               'y': -90,
+               'z': 0}
     if r < 0:
         rot = {'x': 0,
-            'y': 270,
-            'z': 0}
+               'y': 270,
+               'z': 0}
     return pos, rot
+
 
 def diag(r):
     pos = {'x': r/1.4,
@@ -100,13 +101,14 @@ def diag(r):
            'z': -r/1.4}
     if r >= 0:
         rot = {'x': 0,
-            'y': -45,
-            'z': 0}
+               'y': -45,
+               'z': 0}
     if r < 0:
         rot = {'x': 0,
-            'y': 135,
-            'z': 0}
+               'y': 135,
+               'z': 0}
     return pos, rot
+
 
 def default():
     pos = {'x': 0,
@@ -223,7 +225,7 @@ path_dir = path_obj.parent
 
 # ログファイルの作成
 now = str(datetime.now()).replace(':', '_')[:19]
-log_folder_path = os.path.join(path_dir,'logs')
+log_folder_path = os.path.join(path_dir, 'logs')
 if not os.path.exists(log_folder_path):
     os.mkdir(log_folder_path)
 log_path = os.path.join(log_folder_path, f'log_{now}.txt')
@@ -270,21 +272,37 @@ if '_customData' in j.keys():
     raw_b = j['_customData']['_bookmarks']
 else:
     raw_b = j['_bookmarks']
-raw_b.append({'_time':dummyend_grid,'text':'dummyend'})
+raw_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
+
+# 環境コマンドの分離 (sep_b)
+print_log('STEP 環境コマンドの分離')
+sep_b = []
+env_b = []
+size = len(raw_b)
+for i in range(size-1):
+    text = raw_b[i]['_name']
+    grid = raw_b[i]['_time']
+    if text[0] == '#':
+        print_log(f'環境コマンド {text} を検出')
+        env_b.append({'time': grid, 'text': text})
+    else:
+        sep_b.append({'time': grid, 'text': text})
+sep_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
+print_log('STEPを終了しました。\n')
 
 # 特殊コマンドfillをパース（filled_b）
 print_log('STEP fill コマンドの処理')
 filled_b = []
-size = len(raw_b)
+size = len(sep_b)
 for i in range(size-1):
-    text = raw_b[i]['_name']
-    start_grid = raw_b[i]['_time']
+    text = sep_b[i]['text']
+    start_grid = sep_b[i]['time']
     if text[:4] == 'fill':
         param = eval(text.split(',')[0][4:])
         print_log('特殊コマンド fill を検出', param)
         text_pattern = ','.join(text.split(',')[1:])
         span = param
-        end_grid = raw_b[i+1]['_time']
+        end_grid = sep_b[i+1]['time']
         print_log(
             f'スクリプト {text_pattern} をグリッド {start_grid} から {end_grid} まで{span}の間隔で敷き詰めます。')
         cnt = 0
@@ -297,7 +315,7 @@ for i in range(size-1):
         print_log(f'n = {cnt}')
     else:
         filled_b.append({'time': start_grid, 'text': text})
-filled_b.append({'time':dummyend_grid, 'text' : 'dummyend'})
+filled_b.append({'time': dummyend_grid, 'text': 'dummyend'})
 print_log('STEP を終了しました。\n')
 
 # 特殊コマンドcopyをパース（copied_b）
@@ -326,7 +344,7 @@ for i in range(size-1):
                 print_log(f'{t_grid} -> {append_grid} {t_text}')
     else:
         copied_b.append({'time': start_grid, 'text': text})
-copied_b.append({'time':dummyend_grid, 'text': 'dummyend'})
+copied_b.append({'time': dummyend_grid, 'text': 'dummyend'})
 print_log('STEP1 を終了しました。\n')
 
 
@@ -479,12 +497,14 @@ debug -= data['Movements'][-1]['Duration']
 
 print_log('\n全スクリプトの解析を終了しました。')
 
-print_log(f'\nスクリプト占有時間 {int(debug//60)} m {int(debug%60)} s 最後の開始グリッドの再生時間と一致していれば正常。')
+print_log(
+    f'\nスクリプト占有時間 {int(debug//60)} m {int(debug%60)} s 最後の開始グリッドの再生時間と一致していれば正常。')
 
 print_log('\nソフト内部でのjsonデータの作成に成功しました。')
 
 root_dir = path_dir.parent.parent.parent
-target_path = os.path.join(root_dir,'UserData','CameraPlus','Scripts','Scriptmapper_output.json')
+target_path = os.path.join(
+    root_dir, 'UserData', 'CameraPlus', 'Scripts', 'Scriptmapper_output.json')
 print_log(target_path)
 json.dump(data, open(target_path, 'w'), indent=4)
 
