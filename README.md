@@ -1,6 +1,6 @@
 # Script Mapper
 
-このツールでは、以下のように MediocreMapper 上でブックマークに命令（スクリプト）を書いていくことにより、同じタイミングでカメラが動いてくれるようなカメラスクリプトが作成される、というツールです。
+このツールでは、以下のように MediocreMapper 上でブックマークに命令（スクリプト）を書いていくことにより、同じタイミングでカメラが動いてくれるようなカメラスクリプトが作成されます。
 
 ![fig1](https://user-images.githubusercontent.com/43929933/124432656-d4d87100-ddac-11eb-810c-150ec4d64882.png)
 
@@ -15,9 +15,9 @@ Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマッ�
 
 ![fig5](https://user-images.githubusercontent.com/43929933/124432690-dc981580-ddac-11eb-82af-f44095647660.png)
 
-`C:¥Program Files (x86)¥Steam¥steamapps¥common¥Beat Saber¥UserData¥CameraPlus¥Scripts` に `Scriptmapper_output.json` が出力されていれば成功です。後は、`camerascript.cfg` の `movementScriptPath` を`”Scriptmapper_output.json”`に指定すれば、マッピングした通りにカメラが動作してくれるはずです！
+同じフォルダに `SongScript.json` が出力されていれば成功です。後は、`camerascript.cfg` の設定を `songSpecificScript=True`に指定すれば、その譜面をプレイする時には、マッピングした通りにカメラが動作してくれるはずです！
 
-また、同時にカスタムマップフォルダに log が生成されます。生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。
+また、同時に `logs` というフォルダの中に log が生成されます。生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。
 
 ![fig6](https://user-images.githubusercontent.com/43929933/124432709-e02b9c80-ddac-11eb-961a-9613fc0f6da8.png)
 
@@ -63,7 +63,7 @@ Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマッ�
 
 ※これより下の内容は発展的な内容になります。
 
-# プリセットコマンド-中級編
+# プリセットコマンド　中級編
 
 以下のコマンドは、デフォルトコマンドですが、直前の座標に操作を加えるものです。
 
@@ -89,12 +89,12 @@ Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマッ�
 
 カメラがアバターを中心に回転します。後に続く文字列（から、スラッシュで区切られた 2つの文字列）をそれぞれ半径、高さ（ともにメートル）と認識します。また、半径は高さを考慮しない水平投影面での半径を示します。
 
-ex) `rotate4/3` （半径 4m、高さ 3m の円軌道）
+ex) `rotate4,3` （半径 4m、高さ 3m の円軌道）
 
 ## vibro
-カメラが振動します。パラメータは必要としません。
+カメラがランダムに移動します。パラメータは周期となり、短い周期を指定すれば振動、長い周期を指定すれば手ブレのような動きになります。
 
-ex) `vibro`
+ex) `vibro1/6`
 
 ---
 

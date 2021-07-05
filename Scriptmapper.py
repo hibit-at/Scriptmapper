@@ -389,80 +389,79 @@ for b in timed_b:
     cnt += 1
     print_log(f'\n{cnt}番目のスクリプト原文を確認中...')
     text = b['text']
+    if text[:6] == 'rotate':
+        param = [eval(i) for i in text[6:].split(',')]
+        print_log('rotate コマンドを確認', param)
+        r = param[0]
+        h = param[1]
+        dur = b['dur']
+        span = max(1/30, dur/36)
+        spans = []
+        while dur > 0.001:
+            min_span = min(span, dur)
+            spans.append(min_span)
+            dur -= min_span
+        span_size = len(spans)
+        print(span, span_size)
+        for i in range(span_size):
+            new_line = create_template()
+            theta = 2*pi*i/span_size - 1/2*pi
+            next_theta = 2*pi*(i+1)/span_size - 1/2*pi
+            angle = atan2(h-1, r)
+            px = round(r*cos(theta), 3)
+            pz = round(r*sin(theta)+1, 3)
+            rx = degrees(angle)
+            ry = -degrees(theta)+270
+            new_line['StartPos'] = {'x': px, 'y': h, 'z': pz}
+            new_line['StartRot'] = {'x': rx, 'y': ry, 'z': 0}
+            print_log(
+                f'POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
+            px = round(r*cos(next_theta), 3)
+            pz = round(r*sin(next_theta)+1, 3)
+            rx = degrees(angle)
+            ry = -degrees(next_theta)+270
+            new_line['EndPos'] = {'x': px, 'y': h, 'z': pz}
+            new_line['EndRot'] = {'x': rx, 'y': ry, 'z': 0}
+            new_line['Duration'] = spans[i]
+            data['Movements'].append(new_line)
+        pos = {'x': 0, 'y': h, 'z': -r}
+        rot = {'x': 0, 'y': 0, 'z': 0}
+        last_pos_rot = (pos, rot)
+        continue
+    if text[:5] == 'vibro':
+        param = eval(text[5:])
+        print_log('vibro コマンドを検出',param)
+        dur = b['dur']
+        steps = []
+        span = param*60/bpm
+        while dur > 0:
+            steps.append(min(span, dur))
+            dur -= span
+            span *= (0.9 + rd()*0.2)
+        for s in steps:
+            new_line = create_template()
+            pos, rot = copy.deepcopy(last_pos_rot)
+            new_line['StartPos'] = pos
+            new_line['StartRot'] = rot
+            last_pos_rot = (pos, rot)
+            print_log(f'start POS{pos} ROT{rot}')
+            dx = round(rd()/6, 3)-1/12
+            dy = round(rd()/6, 3)-1/12
+            dz = round(rd()/6, 3)-1/12
+            pos, rot = copy.deepcopy(last_pos_rot)
+            pos['x'] += dx
+            pos['y'] += dy
+            pos['z'] += dz
+            new_line['EndPos'] = pos
+            new_line['EndRot'] = rot
+            last_pos_rot = (pos, rot)
+            new_line['Duration'] = s
+            print_log(f'end POS{pos} ROT{rot}')
+            data['Movements'].append(new_line)
+        continue
     parse = text.split(',')
     if len(parse) == 1:
         command = parse[0]
-        # rotate
-        if command[:6] == 'rotate':
-            param = [float(i) for i in command[6:].split('/')]
-            print_log('rotate コマンドを確認', param)
-            r = param[0]
-            h = param[1]
-            dur = b['dur']
-            span = max(1/30, dur/36)
-            spans = []
-            while dur > 0.001:
-                min_span = min(span, dur)
-                spans.append(min_span)
-                dur -= min_span
-            span_size = len(spans)
-            print(span, span_size)
-            for i in range(span_size):
-                new_line = create_template()
-                theta = 2*pi*i/span_size - 1/2*pi
-                next_theta = 2*pi*(i+1)/span_size - 1/2*pi
-                angle = atan2(h-1, r)
-                px = round(r*cos(theta), 3)
-                pz = round(r*sin(theta)+1, 3)
-                rx = degrees(angle)
-                ry = -degrees(theta)+270
-                new_line['StartPos'] = {'x': px, 'y': h, 'z': pz}
-                new_line['StartRot'] = {'x': rx, 'y': ry, 'z': 0}
-                print_log(
-                    f'POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
-                px = round(r*cos(next_theta), 3)
-                pz = round(r*sin(next_theta)+1, 3)
-                rx = degrees(angle)
-                ry = -degrees(next_theta)+270
-                new_line['EndPos'] = {'x': px, 'y': h, 'z': pz}
-                new_line['EndRot'] = {'x': rx, 'y': ry, 'z': 0}
-                new_line['Duration'] = spans[i]
-                data['Movements'].append(new_line)
-            pos = {'x': 0, 'y': h, 'z': -r}
-            rot = {'x': 0, 'y': 0, 'z': 0}
-            last_pos_rot = (pos, rot)
-            continue
-        if command[:5] == 'vibro':
-            param = eval(text[5:])
-            print_log('vibro コマンドを検出',param)
-            dur = b['dur']
-            steps = []
-            span = param*60/bpm
-            while dur > 0:
-                steps.append(min(span, dur))
-                dur -= span
-                span *= (0.9 + rd()*0.2)
-            for s in steps:
-                new_line = create_template()
-                pos, rot = copy.deepcopy(last_pos_rot)
-                new_line['StartPos'] = pos
-                new_line['StartRot'] = rot
-                last_pos_rot = (pos, rot)
-                print_log(f'start POS{pos} ROT{rot}')
-                dx = round(rd()/6, 3)-1/12
-                dy = round(rd()/6, 3)-1/12
-                dz = round(rd()/6, 3)-1/12
-                pos, rot = copy.deepcopy(last_pos_rot)
-                pos['x'] += dx
-                pos['y'] += dy
-                pos['z'] += dz
-                new_line['EndPos'] = pos
-                new_line['EndRot'] = rot
-                last_pos_rot = (pos, rot)
-                new_line['Duration'] = s
-                print_log(f'end POS{pos} ROT{rot}')
-                data['Movements'].append(new_line)
-            continue
         print_log(f'単一のスクリプト {parse[0]} を確認。startとendに同じ値を設定します。')
         new_line = create_template()
         pos, rot = generate(command)
