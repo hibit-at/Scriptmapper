@@ -80,6 +80,34 @@ def front(r):
     return pos, rot
 
 
+def side(r):
+    pos = {'x': r,
+           'y': 1.5,
+           'z': 0}
+    if r >= 0:
+        rot = {'x': 0,
+            'y': -90,
+            'z': 0}
+    if r < 0:
+        rot = {'x': 0,
+            'y': 270,
+            'z': 0}
+    return pos, rot
+
+def diag(r):
+    pos = {'x': r/1.4,
+           'y': 3.0,
+           'z': -r/1.4}
+    if r >= 0:
+        rot = {'x': 0,
+            'y': -45,
+            'z': 0}
+    if r < 0:
+        rot = {'x': 0,
+            'y': 135,
+            'z': 0}
+    return pos, rot
+
 def default():
     pos = {'x': 0,
            'y': 2,
@@ -103,6 +131,14 @@ def generate(text):
         param = eval(text[5:])
         print_log('front コマンドを検出', param)
         return front(param)
+    elif text[:4] == 'side':
+        param = eval(text[4:])
+        print_log('side コマンドを検出', param)
+        return side(param)
+    elif text[:4] == 'diag':
+        param = eval(text[4:])
+        print_log('diag コマンドを検出', param)
+        return diag(param)
     elif text[:6] == "mirror":
         print_log('mirror コマンドを検出')
         mirror_pos_rot = copy.deepcopy(last_pos_rot)
@@ -138,7 +174,7 @@ def generate(text):
         screw_pos_rot[0]['y'] /= scale
         screw_pos_rot[0]['y'] += 1.5
         screw_pos_rot[0]['z'] /= scale
-        screw_pos_rot[1]['z'] += 10*param
+        screw_pos_rot[1]['z'] += 20*param
         return screw_pos_rot
     elif text[:5] == 'slide':
         param = eval(text[5:])
