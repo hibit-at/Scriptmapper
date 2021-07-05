@@ -433,28 +433,34 @@ for b in timed_b:
             last_pos_rot = (pos, rot)
             continue
         if command[:5] == 'vibro':
-            print_log('vibro コマンドを検出')
+            param = eval(text[5:])
+            print_log('vibro コマンドを検出',param)
             dur = b['dur']
             steps = []
+            span = param*60/bpm
             while dur > 0:
-                steps.append(min(0.02, dur))
-                dur -= 0.02
+                steps.append(min(span, dur))
+                dur -= span
+                span *= (0.9 + rd()*0.2)
             for s in steps:
-                rx = round(rd()/6, 3)
-                ry = round(rd()/6, 3)
-                rz = round(rd()/6, 3)
                 new_line = create_template()
-                vibro_pos_rot = copy.deepcopy(last_pos_rot)
-                new_line['StartPos'] = vibro_pos_rot[0]
-                new_line['StartRot'] = vibro_pos_rot[1]
-                new_line['StartPos']['x'] += rx
-                new_line['StartPos']['y'] += ry
-                new_line['StartPos']['z'] += rz
-                new_line['EndPos'] = new_line['StartPos']
-                new_line['EndRot'] = new_line['StartRot']
+                pos, rot = copy.deepcopy(last_pos_rot)
+                new_line['StartPos'] = pos
+                new_line['StartRot'] = rot
+                last_pos_rot = (pos, rot)
+                print_log(f'start POS{pos} ROT{rot}')
+                dx = round(rd()/6, 3)-1/12
+                dy = round(rd()/6, 3)-1/12
+                dz = round(rd()/6, 3)-1/12
+                pos, rot = copy.deepcopy(last_pos_rot)
+                pos['x'] += dx
+                pos['y'] += dy
+                pos['z'] += dz
+                new_line['EndPos'] = pos
+                new_line['EndRot'] = rot
+                last_pos_rot = (pos, rot)
                 new_line['Duration'] = s
-                print_log(
-                    f'POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
+                print_log(f'end POS{pos} ROT{rot}')
                 data['Movements'].append(new_line)
             continue
         print_log(f'単一のスクリプト {parse[0]} を確認。startとendに同じ値を設定します。')
@@ -503,9 +509,7 @@ print_log(
 
 print_log('\nソフト内部でのjsonデータの作成に成功しました。')
 
-root_dir = path_dir.parent.parent.parent
-target_path = os.path.join(
-    root_dir, 'UserData', 'CameraPlus', 'Scripts', 'Scriptmapper_output.json')
+target_path = os.path.join(path_dir,'SongScript.json')
 print_log(target_path)
 json.dump(data, open(target_path, 'w'), indent=4)
 
