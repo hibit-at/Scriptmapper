@@ -214,11 +214,12 @@ print_log('')
 f = open(file_path, 'r')
 j = json.load(f)
 notes = j['_notes']
-last_time = notes[-1]['_time']
+dummyend_grid = notes[-1]['_time']+100
 if '_customData' in j.keys():
     raw_b = j['_customData']['_bookmarks']
 else:
     raw_b = j['_bookmarks']
+raw_b.append({'_time':dummyend_grid,'text':'dummyend'})
 
 # 特殊コマンドfillをパース（filled_b）
 print_log('STEP fill コマンドの処理')
@@ -245,6 +246,7 @@ for i in range(size-1):
         print_log(f'n = {cnt}')
     else:
         filled_b.append({'time': start_grid, 'text': text})
+filled_b.append({'time':dummyend_grid, 'text' : 'dummyend'})
 print_log('STEP を終了しました。\n')
 
 # 特殊コマンドcopyをパース（copied_b）
@@ -285,10 +287,11 @@ for i in range(size):
     if i == 0 and time != 0:
         final_b.append({'time': 0, 'text': 'def'})
     final_b.append({'time': time, 'text': text})
-if final_b[-1]['time'] < last_time:
-    final_b.append({'time': last_time, 'text': 'end'})
+final_b.append({'time':dummyend_grid, 'text': 'dummyend'})
 print_log(f'開始グリッド {final_b[0]["time"]}')
-print_log(f'終了グリッド {final_b[-1]["time"]}')
+print_log(f'最後の開始グリッド {final_b[-2]["time"]}')
+print_log(f'ダミーエンドグリッド {final_b[-1]["time"]}')
+
 print_log('STEP3を終了しました\n')
 
 # 最終的なグリッド
@@ -419,13 +422,13 @@ for b in timed_b:
         print_log('スクリプトの解析に失敗しました。')
 
 debug = 0
-
 for m in data['Movements']:
     debug += m['Duration']
+debug -= data['Movements'][-1]['Duration']
 
 print_log('\n全スクリプトの解析を終了しました。')
 
-print_log(f'\nスクリプト占有時間 {int(debug//60)} m {int(debug%60)} s 譜面の長さと一致していれば正常。')
+print_log(f'\nスクリプト占有時間 {int(debug//60)} m {int(debug%60)} s 最後の開始グリッドの再生時間と一致していれば正常。')
 
 print_log('\nソフト内部でのjsonデータの作成に成功しました。')
 
