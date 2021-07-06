@@ -1,6 +1,8 @@
 from math import atan2, cos, degrees, pi, sin, sqrt
 from random import random as rd
 from utils import create_template
+from copy import deepcopy
+
 
 def random(r):
     theta = rd()*2*pi
@@ -75,7 +77,7 @@ def mirror(last_pos_rot):
 
 
 def zoom(scale, last_pos_rot):
-    pos, rot = last_pos_rot
+    pos, rot = deepcopy(last_pos_rot)
     pos['x'] /= scale
     pos['y'] -= 1.5
     pos['y'] /= scale
@@ -85,13 +87,13 @@ def zoom(scale, last_pos_rot):
 
 
 def spin(r, last_pos_rot):
-    pos, rot = last_pos_rot
+    pos, rot = deepcopy(last_pos_rot)
     rot['z'] += r
     return pos, rot
 
 
 def screw(scale, last_pos_rot):
-    pos, rot = last_pos_rot
+    pos, rot = deepcopy(last_pos_rot)
     angle = 20*(1-scale)
     pos['x'] /= scale
     pos['y'] -= 1.5
@@ -101,19 +103,23 @@ def screw(scale, last_pos_rot):
     rot['z'] += angle
     return pos, rot
 
+
 def slide(r, last_pos_rot):
-    pos, rot = last_pos_rot
+    pos, rot = deepcopy(last_pos_rot)
     pos['x'] += r
     return pos, rot
 
+
 def shift(r, last_pos_rot):
-    pos, rot = last_pos_rot
+    pos, rot = deepcopy(last_pos_rot)
     pos['y'] += r
     return pos, rot
 
+
 def before(last_pos_rot):
-    pos, rot = last_pos_rot
+    pos, rot = deepcopy(last_pos_rot)
     return pos, rot
+
 
 def original(command):
     cx = float(command['px'])
@@ -131,7 +137,8 @@ def original(command):
             command['ry']), 'z': float(command['rz'])}
     return pos, rot
 
-def rotate(dur,text):
+
+def rotate(dur, text):
     param = [eval(i) for i in text[6:].split(',')]
     r = param[0]
     h = param[1]
@@ -164,10 +171,11 @@ def rotate(dur,text):
         ans.append(new_line)
     return ans
 
-def vibro(dur,bpm,text,last_pos_rot):
+
+def vibro(dur, bpm, text, last_pos_rot):
     param = eval(text[5:])
     steps = []
-    pos, rot = last_pos_rot
+    pos, rot = deepcopy(last_pos_rot)
     span = max(1/30, param*60/bpm)
     while dur > 0:
         steps.append(min(span, dur))
@@ -178,8 +186,7 @@ def vibro(dur,bpm,text,last_pos_rot):
         new_line = create_template()
         new_line['StartPos'] = pos
         new_line['StartRot'] = rot
-        e_pos = pos.copy()
-        e_rot = rot.copy()
+        e_pos, e_rot = deepcopy((pos,rot))
         dx = round(rd()/6, 3)-1/12
         dy = round(rd()/6, 3)-1/12
         dz = round(rd()/6, 3)-1/12
@@ -190,6 +197,5 @@ def vibro(dur,bpm,text,last_pos_rot):
         new_line['EndRot'] = e_rot
         new_line['Duration'] = s
         ans.append(new_line)
-        pos = e_pos.copy()
-        rot = e_rot.copy()
+        pos, rot = (e_pos, e_rot)
     return ans
