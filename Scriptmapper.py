@@ -3,11 +3,11 @@ import json
 import os
 import pathlib
 import sys
+from copy import deepcopy
 from datetime import datetime
 
-from copy import deepcopy
 from commands import *
-from utils import template, create_template
+from utils import create_template, template
 
 
 # 関数の定義
@@ -24,42 +24,60 @@ def generate(text, last_pos_rot):
         print_log('default コマンドを検出')
         return default()
     elif text[:6] == 'random':
-        param = eval(text[6:])
+        param = 4.0  # init
+        if len(text) > 6:
+            param = eval(text[6:])
         print_log('random コマンドを検出', param)
         return random(param)
     elif text[:5] == 'front':
-        param = eval(text[5:])
+        param = 2.0  # init
+        if len(text) > 5:
+            param = eval(text[5:])
         print_log('front コマンドを検出', param)
         return front(param)
     elif text[:4] == 'side':
-        param = eval(text[4:])
+        param = 2.5  # init
+        if len(text) > 4:
+            param = eval(text[4:])
         print_log('side コマンドを検出', param)
         return side(param)
     elif text[:4] == 'diag':
-        param = eval(text[4:])
+        param = 4  # init
+        if len(text) > 4:
+            param = eval(text[4:])
         print_log('diag コマンドを検出', param)
         return diag(param)
     elif text[:6] == "mirror":
         print_log('mirror コマンドを検出')
         return mirror(last_pos_rot)
     elif text[:4] == "zoom":
-        param = eval(text[4:])
+        param = 2.0  # init
+        if len(text) > 4:
+            param = eval(text[4:])
         print_log('zoom コマンドを検出', param)
         return zoom(param, last_pos_rot)
     elif text[:4] == 'spin':
-        print_log('spin コマンドを検出')
-        param = eval(text[4:])
+        param = 20
+        if len(text) > 4:
+            param = eval(text[4:])
+        print_log('spin コマンドを検出', param)
         return spin(param, last_pos_rot)
     elif text[:5] == 'screw':
+        param = 2.0
+        if len(text) > 5:
+            param = eval(text[5:])
         print_log('screw コマンドを検出')
-        param = eval(text[5:])
         return screw(param, last_pos_rot)
     elif text[:5] == 'slide':
-        param = eval(text[5:])
+        param = 1
+        if len(text) > 5:
+            param = eval(text[5:])
         print_log('slide コマンドを検出', param)
         return slide(param, last_pos_rot)
     elif text[:5] == 'shift':
-        param = eval(text[5:])
+        param = .5
+        if len(text) > 5:
+            param = eval(text[5:])
         print_log('shift コマンドを検出', param)
         return shift(param, last_pos_rot)
     elif text[:6] == 'before':
@@ -138,7 +156,7 @@ size = len(raw_b)
 for i in range(size-1):
     text = raw_b[i]['_name']
     grid = raw_b[i]['_time']
-    if text[0] == '#':
+    if len(text) > 0 and text[0] == '#':
         print_log(f'環境コマンド {text} を検出')
         env_b.append({'time': grid, 'text': text})
     else:
