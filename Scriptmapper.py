@@ -4,44 +4,13 @@ import json
 import os
 import pathlib
 import sys
-from datetime import date, datetime
-from math import atan2, cos, degrees, floor, pi, sin, sqrt
-from random import random as rd
+from datetime import datetime
 
-# 関数の定義
-
-template = {
-    "ActiveInPauseMenu": True,
-    "Movements": [
-        {
-            "StartPos": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-            },
-            "StartRot": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-            },
-            "EndPos": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-            },
-            "EndRot": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-            },
-            "Duration": 0,
-            "Delay": 0,
-            "EaseTransition": False
-        }
-    ]
-}
+from commands import *
+from utils import template,create_template
 
 
+#関数の定義
 def print_log(*args):
     str_args = [str(a) for a in args]
     text = ' '.join(str_args)
@@ -50,79 +19,7 @@ def print_log(*args):
         f.write(text+'\n')
 
 
-def create_template():
-    move_tmp = copy.deepcopy(template['Movements'][0])
-    move_tmp['EaseTransition'] = False
-    return move_tmp
-
-
-def random(r):
-    theta = rd()*2*pi
-    phi = rd()/4*pi
-    angle = atan2(r*sin(phi)-1.5, r)
-    pos = {'x': round(r*cos(phi)*cos(theta), 1),
-           'y': round(r*sin(phi), 1),
-           'z': round(r*cos(phi)*sin(theta), 1)}
-    spin = rd()*20-10
-    rot = {'x': int(degrees(angle)),
-           'y': -int(degrees(theta))+270,
-           'z': spin}
-    return pos, rot
-
-
-def front(r):
-    pos = {'x': 0,
-           'y': 1.5,
-           'z': r}
-    rot = {'x': 0,
-           'y': 180,
-           'z': 0}
-    return pos, rot
-
-
-def side(r):
-    pos = {'x': r,
-           'y': 1.5,
-           'z': 0}
-    if r >= 0:
-        rot = {'x': 0,
-               'y': -90,
-               'z': 0}
-    if r < 0:
-        rot = {'x': 0,
-               'y': 270,
-               'z': 0}
-    return pos, rot
-
-
-def diag(r):
-    pos = {'x': r/1.4,
-           'y': 3.0,
-           'z': -r/1.4}
-    angle = degrees(atan2(1.5, abs(r)))
-    if r >= 0:
-        rot = {'x': angle,
-               'y': -45,
-               'z': 0}
-    if r < 0:
-        rot = {'x': angle,
-               'y': 135,
-               'z': 0}
-    return pos, rot
-
-
-def default():
-    pos = {'x': 0,
-           'y': 2,
-           'z': -3}
-    rot = {'x': 10,
-           'y': 0,
-           'z': 0}
-    return pos, rot
-
-
-def generate(text):
-    global last_pos_rot
+def generate(text, last_pos_rot):
     if text[:3] == 'def':
         print_log('default コマンドを検出')
         return default()
@@ -144,79 +41,38 @@ def generate(text):
         return diag(param)
     elif text[:6] == "mirror":
         print_log('mirror コマンドを検出')
-        mirror_pos_rot = copy.deepcopy(last_pos_rot)
-        mirror_pos_rot[0]['x'] *= -1
-        mirror_pos_rot[1]['y'] *= -1
-        return mirror_pos_rot
+        return mirror(last_pos_rot)
     elif text[:4] == "zoom":
-        if len(text) == 4:
-            param = 2
-        else:
-            param = eval(text[4:])
+        param = eval(text[4:])
         print_log('zoom コマンドを検出', param)
-        zoom_pos_rot = copy.deepcopy(last_pos_rot)
-        zoom_pos_rot[0]['x'] /= param
-        zoom_pos_rot[0]['y'] -= 1.5
-        zoom_pos_rot[0]['y'] /= param
-        zoom_pos_rot[0]['y'] += 1.5
-        zoom_pos_rot[0]['z'] /= param
-        return zoom_pos_rot
+        return zoom(param, last_pos_rot)
     elif text[:4] == 'spin':
         print_log('spin コマンドを検出')
         param = eval(text[4:])
-        spin_pos_rot = copy.deepcopy(last_pos_rot)
-        spin_pos_rot[1]['z'] += param
-        return spin_pos_rot
+        return spin(param, last_pos_rot)
     elif text[:5] == 'screw':
         print_log('screw コマンドを検出')
         param = eval(text[5:])
-        screw_pos_rot = copy.deepcopy(last_pos_rot)
-        scale = param+1
-        screw_pos_rot[0]['x'] /= scale
-        screw_pos_rot[0]['y'] -= 1.5
-        screw_pos_rot[0]['y'] /= scale
-        screw_pos_rot[0]['y'] += 1.5
-        screw_pos_rot[0]['z'] /= scale
-        screw_pos_rot[1]['z'] += 20*param
-        return screw_pos_rot
+        return screw(param, last_pos_rot)
     elif text[:5] == 'slide':
         param = eval(text[5:])
         print_log('slide コマンドを検出', param)
-        slide_pos_rot = copy.deepcopy(last_pos_rot)
-        slide_pos_rot[0]['x'] += param
-        return slide_pos_rot
+        return slide(param, last_pos_rot)
     elif text[:5] == 'shift':
         param = eval(text[5:])
         print_log('shift コマンドを検出', param)
-        shift_pos_rot = copy.deepcopy(last_pos_rot)
-        shift_pos_rot[0]['y'] += param
-        return shift_pos_rot
+        return shift(param, last_pos_rot)
     elif text[:6] == 'before':
         print_log('before コマンドを検出')
-        new_pos_rot = copy.deepcopy(last_pos_rot)
-        return new_pos_rot
+        return before(last_pos_rot)
     else:
         if text in manual.keys():
             print_log(f'オリジナルコマンド {text} を検出')
             command = manual[text]
-            cx = float(command['px'])
-            cy = float(command['py'])
-            cz = float(command['pz'])
-            pos = {'x': cx, 'y': cy, 'z': cz}
-            if command['lookat'].lower() == 'true':
-                theta = atan2(cz, cx)
-                theta = -int(degrees(theta))+270
-                r = sqrt(cx**2+cz**2)
-                angle = int(degrees(atan2(cy-1.5, r)))
-                rot = {'x': angle, 'y': theta, 'z': 0}
-            else:
-                rot = {'x': float(command['rx']), 'y': float(
-                    command['ry']), 'z': float(command['rz'])}
-            return pos, rot
+            return original(command)
         else:
             print_log('コマンドに該当なし、直近の値を返します。')
-            return last_pos_rot
-# 関数の定義　終わり
+            return before()
 
 
 # ファイルパスの取得
@@ -261,8 +117,7 @@ if os.path.exists(input_path):
         manual[d['label']] = d
         print_log(d)
 else:
-    print_log('input.csv が見つからないため、オリジナルコマンドは追加されません。')
-print_log('')
+    print_log('input.csv が見つからないため、オリジナルコマンドは追加されません。\n')
 
 # bookmarkの抽出（raw_b）
 f = open(file_path, 'r')
@@ -365,12 +220,14 @@ print_log(f'ダミーエンドグリッド {final_b[-1]["time"]}')
 print_log('STEP3を終了しました\n')
 
 # 最終的なグリッド
+cnt = 1
 print_log('特殊コマンドのパースを完了。最終的なスクリプトは以下になります。\n')
 for b in final_b:
     grid = b['time']
     text = b['text']
-    log_text = f'{grid} : {text}'
+    log_text = f'{cnt}番目　{grid} : {text}'
     print_log(log_text)
+    cnt += 1
 
 # グリッドを時間に変換
 timed_b = []
@@ -389,112 +246,45 @@ for b in timed_b:
     cnt += 1
     print_log(f'\n{cnt}番目のスクリプト原文を確認中...')
     text = b['text']
+    dur = b['dur']
     if text[:6] == 'rotate':
-        param = [eval(i) for i in text[6:].split(',')]
-        print_log('rotate コマンドを確認', param)
-        r = param[0]
-        h = param[1]
-        dur = b['dur']
-        span = max(1/30, dur/36)
-        spans = []
-        while dur > 0.001:
-            min_span = min(span, dur)
-            spans.append(min_span)
-            dur -= min_span
-        span_size = len(spans)
-        print(span, span_size)
-        for i in range(span_size):
-            new_line = create_template()
-            theta = 2*pi*i/span_size - 1/2*pi
-            next_theta = 2*pi*(i+1)/span_size - 1/2*pi
-            angle = atan2(h-1, r)
-            px = round(r*cos(theta), 3)
-            pz = round(r*sin(theta)+1, 3)
-            rx = degrees(angle)
-            ry = -degrees(theta)+270
-            new_line['StartPos'] = {'x': px, 'y': h, 'z': pz}
-            new_line['StartRot'] = {'x': rx, 'y': ry, 'z': 0}
-            print_log(
-                f'POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
-            px = round(r*cos(next_theta), 3)
-            pz = round(r*sin(next_theta)+1, 3)
-            rx = degrees(angle)
-            ry = -degrees(next_theta)+270
-            new_line['EndPos'] = {'x': px, 'y': h, 'z': pz}
-            new_line['EndRot'] = {'x': rx, 'y': ry, 'z': 0}
-            new_line['Duration'] = spans[i]
-            data['Movements'].append(new_line)
-        pos = {'x': 0, 'y': h, 'z': -r}
-        rot = {'x': 0, 'y': 0, 'z': 0}
-        last_pos_rot = (pos, rot)
+        print_log('rotate コマンドを確認')
+        new_lines = rotate(dur, text)
+        for n in new_lines:
+            pos = n['StartPos']
+            rot = n['StartRot']
+            print_log(f'POS{pos} ROT{rot}')
+            data['Movements'].append(n)
         continue
     if text[:5] == 'vibro':
-        param = eval(text[5:])
-        print_log('vibro コマンドを検出',param)
-        dur = b['dur']
-        steps = []
-        span = param*60/bpm
-        while dur > 0:
-            steps.append(min(span, dur))
-            dur -= span
-            span *= (0.9 + rd()*0.2)
-        for s in steps:
-            new_line = create_template()
-            pos, rot = copy.deepcopy(last_pos_rot)
-            new_line['StartPos'] = pos
-            new_line['StartRot'] = rot
-            last_pos_rot = (pos, rot)
-            print_log(f'start POS{pos} ROT{rot}')
-            dx = round(rd()/6, 3)-1/12
-            dy = round(rd()/6, 3)-1/12
-            dz = round(rd()/6, 3)-1/12
-            pos, rot = copy.deepcopy(last_pos_rot)
-            pos['x'] += dx
-            pos['y'] += dy
-            pos['z'] += dz
-            new_line['EndPos'] = pos
-            new_line['EndRot'] = rot
-            last_pos_rot = (pos, rot)
-            new_line['Duration'] = s
-            print_log(f'end POS{pos} ROT{rot}')
-            data['Movements'].append(new_line)
+        print_log('vibro コマンドを確認')
+        new_lines = vibro(dur,bpm,text,last_pos_rot)
+        for n in new_lines:
+            pos = n['StartPos']
+            rot = n['StartRot']
+            print_log(f'POS{pos} ROT{rot}')
+            data['Movements'].append(n)
         continue
     parse = text.split(',')
     if len(parse) == 1:
-        command = parse[0]
-        print_log(f'単一のスクリプト {parse[0]} を確認。startとendに同じ値を設定します。')
-        new_line = create_template()
-        pos, rot = generate(command)
-        last_pos_rot = (pos, rot)
-        print_log(f'POS{pos} ROT{rot}')
-        new_line['StartPos'] = pos
-        new_line['StartRot'] = rot
-        new_line['EndPos'] = pos
-        new_line['EndRot'] = rot
-        new_line['Duration'] = b['dur']
-        if cnt == 1:
-            new_line['Duration'] -= 15/bpm
-        data['Movements'].append(new_line)
-    elif len(parse) == 2:
-        print_log(
-            f'2つのスクリプト {parse[0]} と {parse[1]}を確認。startとendに各コマンドを適用します。')
-        start_command = parse[0]
-        end_command = parse[1]
-        new_line = create_template()
-        pos, rot = generate(start_command)
-        print_log(f'POS{pos} ROT{rot}')
-        last_pos_rot = (pos, rot)
-        new_line['StartPos'] = pos
-        new_line['StartRot'] = rot
-        pos, rot = generate(end_command)
-        print_log(f'POS{pos} ROT{rot}')
-        last_pos_rot = (pos, rot)
-        new_line['EndPos'] = pos
-        new_line['EndRot'] = rot
-        new_line['Duration'] = b['dur']
-        data['Movements'].append(new_line)
-    else:
-        print_log('スクリプトの解析に失敗しました。')
+        parse.append('before')
+    new_line = create_template()
+    start_command = parse[0]
+    print_log(f'start command {start_command}')
+    pos, rot = generate(start_command, last_pos_rot)
+    print_log(f'POS{pos} ROT{rot}')
+    last_pos_rot = copy.deepcopy((pos, rot))
+    new_line['StartPos'] = pos
+    new_line['StartRot'] = rot
+    end_command = parse[1]
+    print_log(f'end command {end_command}')
+    pos, rot = generate(end_command, last_pos_rot)
+    print_log(f'POS{pos} ROT{rot}')
+    last_pos_rot = copy.deepcopy((pos, rot))
+    new_line['EndPos'] = pos
+    new_line['EndRot'] = rot
+    new_line['Duration'] = b['dur']
+    data['Movements'].append(new_line)
 
 debug = 0
 for m in data['Movements']:
@@ -508,7 +298,7 @@ print_log(
 
 print_log('\nソフト内部でのjsonデータの作成に成功しました。')
 
-target_path = os.path.join(path_dir,'SongScript.json')
+target_path = os.path.join(path_dir, 'SongScript.json')
 print_log(target_path)
 json.dump(data, open(target_path, 'w'), indent=4)
 
