@@ -1,4 +1,3 @@
-import copy
 import csv
 import json
 import os
@@ -6,11 +5,12 @@ import pathlib
 import sys
 from datetime import datetime
 
+from copy import deepcopy
 from commands import *
-from utils import template,create_template
+from utils import template, create_template
 
 
-#関数の定義
+# 関数の定義
 def print_log(*args):
     str_args = [str(a) for a in args]
     text = ' '.join(str_args)
@@ -190,7 +190,7 @@ for i in range(size-1):
         t_end_grid = param + end_grid - start_grid
         print_log(
             f'グリッド{start_grid}～{end_grid}のスクリプトを、グリッド{t_start_grid}～{t_end_grid}からコピーします')
-        tmp_b = copy.deepcopy(copied_b)
+        tmp_b = deepcopy(copied_b)
         for t in tmp_b:
             t_grid = t['time']
             t_text = t['text']
@@ -238,13 +238,13 @@ for i in range(size-1):
     timed_b.append({'dur': dur*60/bpm, 'text': text})
 
 print_log('\nスクリプトからコマンドへの変換を行います。')
-data = copy.deepcopy(template)
+data = deepcopy(template)
 data['Movements'] = []
 last_pos_rot = default()
 cnt = 0
 for b in timed_b:
     cnt += 1
-    print_log(f'\n{cnt}番目のスクリプト原文を確認中...')
+    print_log(f'\n{cnt}番目のスクリプトを確認中...')
     text = b['text']
     dur = b['dur']
     if text[:6] == 'rotate':
@@ -253,16 +253,18 @@ for b in timed_b:
         for n in new_lines:
             pos = n['StartPos']
             rot = n['StartRot']
-            print_log(f'POS{pos} ROT{rot}')
+            print_log(f'start POS{n["StartPos"]} ROT{n["StartRot"]}')
+            print_log(f'end POS{n["EndPos"]} ROT{n["EndRot"]}')
             data['Movements'].append(n)
         continue
     if text[:5] == 'vibro':
         print_log('vibro コマンドを確認')
-        new_lines = vibro(dur,bpm,text,last_pos_rot)
+        new_lines = vibro(dur, bpm, text, last_pos_rot)
         for n in new_lines:
             pos = n['StartPos']
             rot = n['StartRot']
-            print_log(f'POS{pos} ROT{rot}')
+            print_log(f'start POS{n["StartPos"]} ROT{n["StartRot"]}')
+            print_log(f'end POS{n["EndPos"]} ROT{n["EndRot"]}')
             data['Movements'].append(n)
         continue
     parse = text.split(',')
@@ -270,20 +272,20 @@ for b in timed_b:
         parse.append('before')
     new_line = create_template()
     start_command = parse[0]
-    print_log(f'start command {start_command}')
+    print_log(f'start script : {start_command}')
     pos, rot = generate(start_command, last_pos_rot)
-    print_log(f'POS{pos} ROT{rot}')
-    last_pos_rot = copy.deepcopy((pos, rot))
+    last_pos_rot = (pos, rot)
     new_line['StartPos'] = pos
     new_line['StartRot'] = rot
     end_command = parse[1]
-    print_log(f'end command {end_command}')
+    print_log(f'end script : {end_command}')
     pos, rot = generate(end_command, last_pos_rot)
-    print_log(f'POS{pos} ROT{rot}')
-    last_pos_rot = copy.deepcopy((pos, rot))
+    last_pos_rot = (pos, rot)
     new_line['EndPos'] = pos
     new_line['EndRot'] = rot
     new_line['Duration'] = b['dur']
+    print_log(f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
+    print_log(f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}')
     data['Movements'].append(new_line)
 
 debug = 0
