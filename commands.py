@@ -44,6 +44,16 @@ def side(r):
     return pos, rot
 
 
+def top(h):
+    pos = {'x': 0,
+           'y': h,
+           'z': 1}
+    rot = {'x': 90,
+           'y': 0,
+           'z': 0}
+    return pos, rot
+
+
 def diag(r):
     pos = {'x': r/1.4,
            'y': 3.0,
@@ -117,6 +127,12 @@ def shift(r, last_pos_rot):
     return pos, rot
 
 
+def push(r, last_pos_rot):
+    pos, rot = deepcopy(last_pos_rot)
+    pos['z'] += r
+    return pos, rot
+
+
 def before(last_pos_rot):
     pos, rot = deepcopy(last_pos_rot)
     return pos, rot
@@ -173,8 +189,7 @@ def rotate(dur, text):
     return ans
 
 
-def vibro(dur, bpm, text, last_pos_rot):
-    param = eval(text[5:])
+def vibro(dur, bpm, param, last_pos_rot):
     steps = []
     pos, rot = deepcopy(last_pos_rot)
     span = max(1/30, param*60/bpm)
@@ -187,7 +202,7 @@ def vibro(dur, bpm, text, last_pos_rot):
         new_line = create_template()
         new_line['StartPos'] = pos
         new_line['StartRot'] = rot
-        e_pos, e_rot = deepcopy((pos,rot))
+        e_pos, e_rot = deepcopy((pos, rot))
         dx = round(rd()/6, 3)-1/12
         dy = round(rd()/6, 3)-1/12
         dz = round(rd()/6, 3)-1/12
