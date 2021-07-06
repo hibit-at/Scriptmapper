@@ -7,7 +7,7 @@ from copy import deepcopy
 from datetime import datetime
 
 from commands import *
-from utils import create_template, template
+from utils import create_template, grid_parse, template
 
 
 # 関数の定義
@@ -92,7 +92,6 @@ def generate(text, last_pos_rot):
             print_log('コマンドに該当なし、直近の値を返します。')
             return before(last_pos_rot)
 
-
 # ファイルパスの取得
 file_path = sys.argv[1]
 path_obj = pathlib.Path(file_path)
@@ -164,78 +163,12 @@ for i in range(size-1):
 sep_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
 print_log('STEPを終了しました。\n')
 
-# 特殊コマンドfillをパース（filled_b）
-print_log('STEP fill コマンドの処理')
-filled_b = []
-size = len(sep_b)
-for i in range(size-1):
-    text = sep_b[i]['text']
-    start_grid = sep_b[i]['time']
-    if text[:4] == 'fill':
-        param = eval(text.split(',')[0][4:])
-        print_log('特殊コマンド fill を検出', param)
-        text_pattern = ','.join(text.split(',')[1:])
-        span = param
-        end_grid = sep_b[i+1]['time']
-        print_log(
-            f'スクリプト {text_pattern} をグリッド {start_grid} から {end_grid} まで{span}の間隔で敷き詰めます。')
-        cnt = 0
-        current_grid = start_grid
-        while current_grid < end_grid:
-            cnt += 1
-            filled_b.append({'time': current_grid, 'text': text_pattern})
-            print_log(f'{current_grid} : {text_pattern}')
-            current_grid += span
-        print_log(f'n = {cnt}')
-    else:
-        filled_b.append({'time': start_grid, 'text': text})
-filled_b.append({'time': dummyend_grid, 'text': 'dummyend'})
-print_log('STEP を終了しました。\n')
-
-# 特殊コマンドcopyをパース（copied_b）
-print_log('STEP copy コマンドの処理')
-copied_b = []
-size = len(filled_b)
-for i in range(size-1):
-    text = filled_b[i]['text']
-    start_grid = filled_b[i]['time']
-    if text[:4] == 'copy':
-        param = eval(text.split(',')[0][4:])
-        print_log('copy を検出', param)
-        text_pattern = ','.join(text.split(',')[1:])
-        end_grid = filled_b[i+1]['time']
-        t_start_grid = param
-        t_end_grid = param + end_grid - start_grid
-        print_log(
-            f'グリッド{start_grid}～{end_grid}のスクリプトを、グリッド{t_start_grid}～{t_end_grid}からコピーします')
-        tmp_b = deepcopy(copied_b)
-        for t in tmp_b:
-            t_grid = t['time']
-            t_text = t['text']
-            if t_start_grid <= t_grid and t_grid < t_end_grid:
-                append_grid = start_grid + t_grid - t_start_grid
-                copied_b.append({'time': append_grid, 'text': t_text})
-                print_log(f'{t_grid} -> {append_grid} {t_text}')
-    else:
-        copied_b.append({'time': start_grid, 'text': text})
-copied_b.append({'time': dummyend_grid, 'text': 'dummyend'})
-print_log('STEP1 を終了しました。\n')
-
-
-print_log('STEP3 マップの開始と終了を設定')
-final_b = []
-size = len(copied_b)
-for i in range(size):
-    time = copied_b[i]['time']
-    text = copied_b[i]['text']
-    if i == 0 and time != 0:
-        final_b.append({'time': 0, 'text': 'def'})
-    final_b.append({'time': time, 'text': text})
-print_log(f'開始グリッド {final_b[0]["time"]}')
-print_log(f'最後の開始グリッド {final_b[-2]["time"]}')
-print_log(f'ダミーエンドグリッド {final_b[-1]["time"]}')
-
-print_log('STEP3を終了しました\n')
+#fillの処理
+filled_b, log_text = grid_parse('fill', sep_b, dummyend_grid)
+print_log(log_text)
+#copyの処理
+final_b, log_text = grid_parse('copy', filled_b, dummyend_grid)
+print_log(log_text)
 
 # 最終的なグリッド
 cnt = 1
