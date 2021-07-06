@@ -1,7 +1,8 @@
+from copy import deepcopy
 from math import atan2, cos, degrees, pi, sin, sqrt
 from random import random as rd
+
 from utils import create_template
-from copy import deepcopy
 
 
 def random(r):
@@ -70,7 +71,7 @@ def default():
 
 
 def mirror(last_pos_rot):
-    pos, rot = last_pos_rot
+    pos, rot = deepcopy(last_pos_rot)
     pos['x'] *= -1
     rot['y'] *= -1
     return pos, rot
