@@ -52,17 +52,17 @@ def side(r):
 def top(h):
     pos = {'x': 0,
            'y': h,
-           'z': 1}
+           'z': h/10}
     rot = {'x': 90,
            'y': 0,
            'z': 0}
     return pos, rot
 
 
-def diag(r):
+def diagb(r):
     pos = {'x': r/1.4,
            'y': 3.0,
-           'z': -r/1.4}
+           'z': -abs(r)/1.4}
     angle = degrees(atan2(1.5, abs(r)))
     if r >= 0:
         rot = {'x': angle,
@@ -70,12 +70,26 @@ def diag(r):
                'z': 0}
     if r < 0:
         rot = {'x': angle,
+               'y': 45,
+               'z': 0}
+    return pos, rot
+
+def diagf(r):
+    pos = {'x': r/1.4,
+           'y': 3.0,
+           'z': abs(r)/1.4}
+    angle = degrees(atan2(1.5, abs(r)))
+    if r >= 0:
+        rot = {'x': angle,
+               'y': -135,
+               'z': 0}
+    if r < 0:
+        rot = {'x': angle,
                'y': 135,
                'z': 0}
     return pos, rot
 
-
-def default():
+def back():
     pos = {'x': 0,
            'y': 2,
            'z': -3}
@@ -138,7 +152,7 @@ def push(r, last_pos_rot):
     return pos, rot
 
 
-def before(last_pos_rot):
+def stop(last_pos_rot):
     pos, rot = deepcopy(last_pos_rot)
     return pos, rot
 

@@ -20,9 +20,9 @@ def print_log(*args):
 
 
 def generate(text, last_pos_rot):
-    if text[:3] == 'def':
-        print_log('default コマンドを検出')
-        return default()
+    if text[:4] == 'back':
+        print_log('back コマンドを検出')
+        return back()
     elif text[:6] == 'random':
         param = 4.0  # init
         if len(text) > 6:
@@ -41,17 +41,24 @@ def generate(text, last_pos_rot):
             param = eval(text[4:])
         print_log('side コマンドを検出', param)
         return side(param)
-    elif text[:4] == 'diag':
+    elif text[:5] == 'diagf':
         param = 4  # init
-        if len(text) > 4:
-            param = eval(text[4:])
-        print_log('diag コマンドを検出', param)
-        return diag(param)
+        if len(text) > 5:
+            param = eval(text[5:])
+        print_log('diagf コマンドを検出', param)
+        return diagf(param)
+    elif text[:5] == 'diagb':
+        param = 4  # init
+        if len(text) > 5:
+            param = eval(text[5:])
+        print_log('diagb コマンドを検出', param)
+        return diagb(param)
     elif text[:3] == 'top':
         param = 3  # init
         if len(text) > 3:
             param = eval(text[3:])
         print_log('top コマンドを検出', param)
+        return top(param)
     elif text[:6] == "mirror":
         print_log('mirror コマンドを検出')
         return mirror(last_pos_rot)
@@ -90,9 +97,13 @@ def generate(text, last_pos_rot):
         if len(text) > 4:
             param = eval(text[4:])
         print_log('push コマンドを検出', param)
-    elif text[:6] == 'before':
+        return push(param, last_pos_rot)
+    elif text[:4] == 'stop':
+        print_log('stop コマンドを検出')
+        return stop(last_pos_rot)
+    elif text[:6] == 'before': #旧API
         print_log('before コマンドを検出')
-        return before(last_pos_rot)
+        return stop(last_pos_rot)
     else:
         if text in manual.keys():
             print_log(f'オリジナルコマンド {text} を検出')
@@ -100,7 +111,7 @@ def generate(text, last_pos_rot):
             return original(command)
         else:
             print_log('コマンドに該当なし、直近の値を返します。')
-            return before(last_pos_rot)
+            return stop(last_pos_rot)
 
 
 # ファイルパスの取得
@@ -203,7 +214,7 @@ for i in range(size-1):
 print_log('\nスクリプトからコマンドへの変換を行います。')
 data = deepcopy(template)
 data['Movements'] = []
-last_pos_rot = default()
+last_pos_rot = back()
 cnt = 0
 for b in timed_b:
     cnt += 1
@@ -253,6 +264,8 @@ for b in timed_b:
     print_log(f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
     print_log(f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}')
     data['Movements'].append(new_line)
+
+data['Movements'][0]['Duration'] -= 0.04 #モタるよりも走った方が良いので安全側のオフセット
 
 debug = 0
 for m in data['Movements']:
