@@ -47,6 +47,9 @@ def grid_parse(mode, origin, dummyend_grid):
             ans.append({'time': 0, 'text': 'def'})
             log_texts.append('開始位置（グリッド0）にブックマークがないため、defを挿入しました。')
         if mode == 'fill' and text[:4] == 'fill':
+            if text == 'fill':
+                log_texts.append('！fill にパラメータが指定されていません。')
+                continue
             param = eval(text.split(',')[0][4:])
             log_texts.append('fill を検出')
             log_texts.append(str(param))
@@ -63,6 +66,9 @@ def grid_parse(mode, origin, dummyend_grid):
                 current_grid += span
             log_texts.append(f'n = {cnt}')
         elif mode == 'copy' and text[:4] == 'copy':
+            if text == 'copy':
+                log_texts.append('！copy にパラメータが指定されていません。')
+                continue
             param = eval(text.split(',')[0][4:])
             log_texts.append('copy を検出')
             log_texts.append(str(param))
