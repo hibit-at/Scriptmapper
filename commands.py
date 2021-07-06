@@ -23,9 +23,14 @@ def front(r):
     pos = {'x': 0,
            'y': 1.5,
            'z': r}
-    rot = {'x': 0,
-           'y': 180,
-           'z': 0}
+    if r >= 0:
+        rot = {'x': 0,
+            'y': 180,
+            'z': 0}
+    else:
+        rot = {'x': 0,
+            'y': 0,
+            'z': 0}
     return pos, rot
 
 
@@ -37,9 +42,9 @@ def side(r):
         rot = {'x': 0,
                'y': -90,
                'z': 0}
-    if r < 0:
+    else:
         rot = {'x': 0,
-               'y': 270,
+               'y': 90,
                'z': 0}
     return pos, rot
 
