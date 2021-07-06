@@ -48,7 +48,7 @@ def generate(text, last_pos_rot):
         print_log('diag コマンドを検出', param)
         return diag(param)
     elif text[:3] == 'top':
-        param = 3 # init
+        param = 3  # init
         if len(text) > 3:
             param = eval(text[3:])
         print_log('top コマンドを検出', param)
@@ -101,6 +101,7 @@ def generate(text, last_pos_rot):
         else:
             print_log('コマンドに該当なし、直近の値を返します。')
             return before(last_pos_rot)
+
 
 # ファイルパスの取得
 file_path = sys.argv[1]
@@ -171,11 +172,11 @@ for i in range(size-1):
         scripts.append({'time': grid, 'text': text})
 scripts.append({'_time': dummyend_grid, 'text': 'dummyend'})
 
-#fillの処理
+# fillの処理
 scripts, log_text = grid_parse('fill', scripts, dummyend_grid)
 print_log(log_text)
 print_log('fill の処理が正常に終了しました。')
-#copyの処理
+# copyの処理
 scripts, log_text = grid_parse('copy', scripts, dummyend_grid)
 print_log(log_text)
 print_log('copy の処理が正常に終了しました。')
@@ -223,7 +224,7 @@ for b in timed_b:
         param = 1/4
         if len(text) > 5:
             param = eval(text[5:])
-        print_log('vibro コマンドを確認 ',param)
+        print_log('vibro コマンドを確認 ', param)
         new_lines = vibro(dur, bpm, param, last_pos_rot)
         for n in new_lines:
             pos = n['StartPos']
