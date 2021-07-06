@@ -72,7 +72,7 @@ def generate(text, last_pos_rot):
             return original(command)
         else:
             print_log('コマンドに該当なし、直近の値を返します。')
-            return before()
+            return before(last_pos_rot)
 
 
 # ファイルパスの取得
