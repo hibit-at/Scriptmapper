@@ -47,6 +47,11 @@ def generate(text, last_pos_rot):
             param = eval(text[4:])
         print_log('diag コマンドを検出', param)
         return diag(param)
+    elif text[:3] == 'top':
+        param = 3 # init
+        if len(text) > 3:
+            param = eval(text[3:])
+        print_log('top コマンドを検出', param)
     elif text[:6] == "mirror":
         print_log('mirror コマンドを検出')
         return mirror(last_pos_rot)
@@ -80,6 +85,11 @@ def generate(text, last_pos_rot):
             param = eval(text[5:])
         print_log('shift コマンドを検出', param)
         return shift(param, last_pos_rot)
+    elif text[:4] == 'push':
+        param = 1
+        if len(text) > 4:
+            param = eval(text[4:])
+        print_log('push コマンドを検出', param)
     elif text[:6] == 'before':
         print_log('before コマンドを検出')
         return before(last_pos_rot)
@@ -147,9 +157,8 @@ else:
     raw_b = j['_bookmarks']
 raw_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
 
-# 環境コマンドの分離 (sep_b)
-print_log('STEP 環境コマンドの分離')
-sep_b = []
+# 環境コマンドの分離
+scripts = []
 env_b = []
 size = len(raw_b)
 for i in range(size-1):
@@ -159,33 +168,35 @@ for i in range(size-1):
         print_log(f'環境コマンド {text} を検出')
         env_b.append({'time': grid, 'text': text})
     else:
-        sep_b.append({'time': grid, 'text': text})
-sep_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
-print_log('STEPを終了しました。\n')
+        scripts.append({'time': grid, 'text': text})
+scripts.append({'_time': dummyend_grid, 'text': 'dummyend'})
 
 #fillの処理
-filled_b, log_text = grid_parse('fill', sep_b, dummyend_grid)
+scripts, log_text = grid_parse('fill', scripts, dummyend_grid)
 print_log(log_text)
+print_log('fill の処理が正常に終了しました。')
 #copyの処理
-final_b, log_text = grid_parse('copy', filled_b, dummyend_grid)
+scripts, log_text = grid_parse('copy', scripts, dummyend_grid)
 print_log(log_text)
+print_log('copy の処理が正常に終了しました。')
 
 # 最終的なグリッド
-cnt = 1
+cnt = 0
 print_log('特殊コマンドのパースを完了。最終的なスクリプトは以下になります。\n')
-for b in final_b:
-    grid = b['time']
-    text = b['text']
-    log_text = f'{cnt}番目　{grid} : {text}'
-    print_log(log_text)
+print_log('   　　 　 grid : script')
+for s in scripts:
     cnt += 1
+    grid = s['time']
+    text = s['text']
+    log_text = f'{str(cnt).rjust(3)}番目　{grid:6.2f} : {text}'
+    print_log(log_text)
 
 # グリッドを時間に変換
 timed_b = []
-size = len(final_b)
+size = len(scripts)
 for i in range(size-1):
-    dur = final_b[i+1]['time'] - final_b[i]['time']
-    text = final_b[i]['text']
+    dur = scripts[i+1]['time'] - scripts[i]['time']
+    text = scripts[i]['text']
     timed_b.append({'dur': dur*60/bpm, 'text': text})
 
 print_log('\nスクリプトからコマンドへの変換を行います。')
@@ -209,8 +220,11 @@ for b in timed_b:
             data['Movements'].append(n)
         continue
     if text[:5] == 'vibro':
-        print_log('vibro コマンドを確認')
-        new_lines = vibro(dur, bpm, text, last_pos_rot)
+        param = 1/4
+        if len(text) > 5:
+            param = eval(text[5:])
+        print_log('vibro コマンドを確認 ',param)
+        new_lines = vibro(dur, bpm, param, last_pos_rot)
         for n in new_lines:
             pos = n['StartPos']
             rot = n['StartRot']
@@ -223,13 +237,13 @@ for b in timed_b:
         parse.append('before')
     new_line = create_template()
     start_command = parse[0]
-    print_log(f'start script : {start_command}')
+    print_log(f'start : {start_command}')
     pos, rot = generate(start_command, last_pos_rot)
     last_pos_rot = (pos, rot)
     new_line['StartPos'] = pos
     new_line['StartRot'] = rot
     end_command = parse[1]
-    print_log(f'end script : {end_command}')
+    print_log(f'end : {end_command}')
     pos, rot = generate(end_command, last_pos_rot)
     last_pos_rot = (pos, rot)
     new_line['EndPos'] = pos
