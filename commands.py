@@ -19,18 +19,21 @@ def random(r):
     return pos, rot
 
 
-def front(r):
-    pos = {'x': 0,
-           'y': 1.5,
-           'z': r}
+def center(r):
     if r >= 0:
+        pos = {'x': 0,
+               'y': 1.5,
+               'z': r}
         rot = {'x': 0,
-            'y': 180,
-            'z': 0}
-    else:
-        rot = {'x': 0,
-            'y': 0,
-            'z': 0}
+               'y': 180,
+               'z': 0}
+    if r < 0:
+        pos = {'x': 0,
+               'y': 1.5+abs(r),
+               'z': r}
+        rot = {'x': 45,
+               'y': 0,
+               'z': 0}
     return pos, rot
 
 
@@ -74,6 +77,7 @@ def diagb(r):
                'z': 0}
     return pos, rot
 
+
 def diagf(r):
     pos = {'x': r/1.4,
            'y': 3.0,
@@ -87,15 +91,6 @@ def diagf(r):
         rot = {'x': angle,
                'y': 135,
                'z': 0}
-    return pos, rot
-
-def back():
-    pos = {'x': 0,
-           'y': 2,
-           'z': -3}
-    rot = {'x': 10,
-           'y': 0,
-           'z': 0}
     return pos, rot
 
 
