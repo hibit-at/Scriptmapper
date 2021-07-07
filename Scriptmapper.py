@@ -20,21 +20,18 @@ def print_log(*args):
 
 
 def generate(text, last_pos_rot):
-    if text[:4] == 'back':
-        print_log('back コマンドを検出')
-        return back()
-    elif text[:6] == 'random':
+    if text[:6] == 'random':
         param = 4.0  # init
         if len(text) > 6:
             param = eval(text[6:])
         print_log('random コマンドを検出', param)
         return random(param)
-    elif text[:5] == 'front':
+    elif text[:6] == 'center':
         param = 2.0  # init
-        if len(text) > 5:
+        if len(text) > 6:
             param = eval(text[5:])
-        print_log('front コマンドを検出', param)
-        return front(param)
+        print_log('center コマンドを検出', param)
+        return center(param)
     elif text[:4] == 'side':
         param = 2.5  # init
         if len(text) > 4:
@@ -110,7 +107,7 @@ def generate(text, last_pos_rot):
             command = manual[text]
             return original(command)
         else:
-            print_log('コマンドに該当なし、直近の値を返します。')
+            print_log(f'！！スクリプト {text} はコマンドに変換できません！！\n直前の座標を返しますが、意図しない演出効果になっている可能性があります。ブックマークに記されたスクリプト文を確認ください。')
             return stop(last_pos_rot)
 
 
@@ -246,7 +243,7 @@ for b in timed_b:
         continue
     parse = text.split(',')
     if len(parse) == 1:
-        parse.append('before')
+        parse.append('stop')
     new_line = create_template()
     start_command = parse[0]
     print_log(f'start : {start_command}')
@@ -260,7 +257,7 @@ for b in timed_b:
     last_pos_rot = (pos, rot)
     new_line['EndPos'] = pos
     new_line['EndRot'] = rot
-    new_line['Duration'] = b['dur']
+    new_line['Duration'] = dur
     print_log(f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
     print_log(f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}')
     data['Movements'].append(new_line)
@@ -275,7 +272,7 @@ debug -= data['Movements'][-1]['Duration']
 print_log('\n全スクリプトの解析を終了しました。')
 
 print_log(
-    f'\nスクリプト占有時間 {int(debug//60)} m {int(debug%60)} s 最後の開始グリッドの再生時間と一致していれば正常。')
+    f'\nスクリプト占有時間 {int(debug//60)} m {int(debug%60)} s 最後のブックマークの再生時間と一致していれば正常。')
 
 print_log('\nソフト内部でのjsonデータの作成に成功しました。')
 

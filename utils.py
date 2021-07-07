@@ -44,8 +44,8 @@ def grid_parse(mode, origin, dummyend_grid):
         text = origin[i]['text']
         start_grid = origin[i]['time']
         if i == 0 and start_grid != 0:
-            ans.append({'time': 0, 'text': 'def'})
-            log_texts.append('開始位置（グリッド0）にブックマークがないため、defを挿入しました。')
+            ans.append({'time': 0, 'text': 'back'})
+            log_texts.append('開始位置（グリッド0）にブックマークがないため、backを挿入しました。')
         if mode == 'fill' and text[:4] == 'fill':
             if text.split(',')[0] == 'fill':
                 log_texts.append('！fill にパラメータが指定されていません。')
