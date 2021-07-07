@@ -19,87 +19,72 @@ def print_log(*args):
         f.write(text+'\n')
 
 
+def get_param(text, length, def_value):
+    param = def_value
+    if len(text) > length:
+        param_word = text[length:]
+        check = any([c.isalpha() for c in param_word])
+        print(param_word)
+        if check:
+            print_log(f'パラメータ {param_word} に英字を確認。セキュリティの問題上、プログラムを強制終了します。')
+            exit()
+        param = eval(param_word)
+    return param
+
 def generate(text, last_pos_rot):
     if text[:6] == 'random':
-        param = 4.0  # init
-        if len(text) > 6:
-            param = eval(text[6:])
+        param = get_param(text, 6, def_value=4)
         print_log('random コマンドを検出', param)
         return random(param)
     elif text[:6] == 'center':
-        param = 2.0  # init
-        if len(text) > 6:
-            param = eval(text[5:])
+        param = get_param(text, 6, def_value=2)
         print_log('center コマンドを検出', param)
         return center(param)
     elif text[:4] == 'side':
-        param = 2.5  # init
-        if len(text) > 4:
-            param = eval(text[4:])
+        param = get_param(text, 4, def_value=2.5)
         print_log('side コマンドを検出', param)
         return side(param)
     elif text[:5] == 'diagf':
-        param = 4  # init
-        if len(text) > 5:
-            param = eval(text[5:])
+        param = get_param(text, 5, def_value=4)
         print_log('diagf コマンドを検出', param)
         return diagf(param)
     elif text[:5] == 'diagb':
-        param = 4  # init
-        if len(text) > 5:
-            param = eval(text[5:])
+        param = get_param(text, 5, def_value=4)
         print_log('diagb コマンドを検出', param)
         return diagb(param)
     elif text[:3] == 'top':
-        param = 3  # init
-        if len(text) > 3:
-            param = eval(text[3:])
+        param = get_param(text, 3, def_value=3)
         print_log('top コマンドを検出', param)
         return top(param)
     elif text[:6] == "mirror":
         print_log('mirror コマンドを検出')
         return mirror(last_pos_rot)
     elif text[:4] == "zoom":
-        param = 2.0  # init
-        if len(text) > 4:
-            param = eval(text[4:])
+        param = get_param(text, 4, def_value=2)
         print_log('zoom コマンドを検出', param)
         return zoom(param, last_pos_rot)
     elif text[:4] == 'spin':
-        param = 20
-        if len(text) > 4:
-            param = eval(text[4:])
+        param = get_param(text, 4, def_value=20)
         print_log('spin コマンドを検出', param)
         return spin(param, last_pos_rot)
     elif text[:5] == 'screw':
-        param = 2.0
-        if len(text) > 5:
-            param = eval(text[5:])
+        param = get_param(text, 5, def_value=2)
         print_log('screw コマンドを検出')
         return screw(param, last_pos_rot)
     elif text[:5] == 'slide':
-        param = 1
-        if len(text) > 5:
-            param = eval(text[5:])
+        param = get_param(text, 5, def_value=1)
         print_log('slide コマンドを検出', param)
         return slide(param, last_pos_rot)
     elif text[:5] == 'shift':
-        param = .5
-        if len(text) > 5:
-            param = eval(text[5:])
+        param = get_param(text, 5, def_value=.5)
         print_log('shift コマンドを検出', param)
         return shift(param, last_pos_rot)
     elif text[:4] == 'push':
-        param = 1
-        if len(text) > 4:
-            param = eval(text[4:])
+        param = get_param(text, 4, def_value=1)
         print_log('push コマンドを検出', param)
         return push(param, last_pos_rot)
     elif text[:4] == 'stop':
         print_log('stop コマンドを検出')
-        return stop(last_pos_rot)
-    elif text[:6] == 'before': #旧API
-        print_log('before コマンドを検出')
         return stop(last_pos_rot)
     else:
         if text in manual.keys():
@@ -107,7 +92,8 @@ def generate(text, last_pos_rot):
             command = manual[text]
             return original(command)
         else:
-            print_log(f'！！スクリプト {text} はコマンドに変換できません！！\n直前の座標を返しますが、意図しない演出効果になっている可能性があります。ブックマークに記されたスクリプト文を確認ください。')
+            print_log(
+                f'！！スクリプト {text} はコマンドに変換できません！！\n直前の座標を返しますが、意図しない演出効果になっている可能性があります。ブックマークに記されたスクリプト文を確認ください。')
             return stop(last_pos_rot)
 
 
@@ -211,7 +197,7 @@ for i in range(size-1):
 print_log('\nスクリプトからコマンドへの変換を行います。')
 data = deepcopy(template)
 data['Movements'] = []
-last_pos_rot = back()
+last_pos_rot = center(-2)
 cnt = 0
 for b in timed_b:
     cnt += 1
@@ -220,6 +206,9 @@ for b in timed_b:
     dur = b['dur']
     if text[:6] == 'rotate':
         print_log('rotate コマンドを確認')
+        if any([c.isalpha() for c in text[6:]]):
+            print_log(f'パラメータ {text[6:]} に英字を確認。セキュリティの問題上、プログラムを強制終了します。')
+            exit()
         new_lines = rotate(dur, text)
         for n in new_lines:
             pos = n['StartPos']
@@ -229,9 +218,7 @@ for b in timed_b:
             data['Movements'].append(n)
         continue
     if text[:5] == 'vibro':
-        param = 1/4
-        if len(text) > 5:
-            param = eval(text[5:])
+        param = get_param(text, 5, def_value=1/4)
         print_log('vibro コマンドを確認 ', param)
         new_lines = vibro(dur, bpm, param, last_pos_rot)
         for n in new_lines:
@@ -262,7 +249,7 @@ for b in timed_b:
     print_log(f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}')
     data['Movements'].append(new_line)
 
-data['Movements'][0]['Duration'] -= 0.04 #モタるよりも走った方が良いので安全側のオフセット
+data['Movements'][0]['Duration'] -= 0.04  # モタるよりも走った方が良いので安全側のオフセット
 
 debug = 0
 for m in data['Movements']:
