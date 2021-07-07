@@ -93,7 +93,7 @@ def generate(text, last_pos_rot):
             return original(command)
         else:
             print_log(
-                f'！！スクリプト {text} はコマンドに変換できません！！\n直前の座標を返しますが、意図しない演出効果になっている可能性があります。ブックマークに記されたスクリプト文を確認ください。')
+                f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
             return stop(last_pos_rot)
 
 
@@ -152,7 +152,7 @@ else:
     raw_b = j['_bookmarks']
 raw_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
 
-# 環境コマンドの分離
+# 環境コマンドの分離（活用未定）
 scripts = []
 env_b = []
 size = len(raw_b)
@@ -261,7 +261,15 @@ print_log('\n全スクリプトの解析を終了しました。')
 print_log(
     f'\nスクリプト占有時間 {int(debug//60)} m {int(debug%60)} s 最後のブックマークの再生時間と一致していれば正常。')
 
-print_log('\nソフト内部でのjsonデータの作成に成功しました。')
+print_log('\nソフト内部でのjsonデータの作成に成功しました。\n')
+
+custom_map = path_obj.parent.name
+not_wip_folder = os.path.join(path_obj.parents[2],'CustomLevels',custom_map)
+if os.path.exists(not_wip_folder):
+    print_log('カスタムマップに同名のフォルダを確認。こちらにもSongScript.jsonを作成します。\n')
+    not_wip_target = os.path.join(not_wip_folder,'Songscript.json')
+    json.dump(data, open(not_wip_target, 'w'), indent=4)
+    print_log(not_wip_target)
 
 target_path = os.path.join(path_dir, 'SongScript.json')
 print_log(target_path)
