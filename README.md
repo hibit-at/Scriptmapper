@@ -2,18 +2,18 @@
 
 このツールは、以下のように マッピングソフト 上でブックマークに命令（スクリプト）を書いていくことにより、同じタイミングでカメラが動いてくれるようなカメラスクリプトを作成します。
 
-![fig1](https://user-images.githubusercontent.com/43929933/124432656-d4d87100-ddac-11eb-810c-150ec4d64882.png)
+<img width="773" alt="read0" src="https://user-images.githubusercontent.com/43929933/124960735-95817d00-e057-11eb-81b3-41cc6db394e6.png">
 
 # 実行方法
 Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマップフォルダに入れてください。
 
-![fig4](https://user-images.githubusercontent.com/43929933/124432683-dace5200-ddac-11eb-8a8e-b63a431fed8a.png)
+<img width="545" alt="read1" src="https://user-images.githubusercontent.com/43929933/124960738-974b4080-e057-11eb-8916-055f7e302ec6.png">
 
 本ツールは、ブックマークの編集中にカスタムマップの譜面データを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
 
 ブックマークでスクリプトを記入した dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
 
-![fig5](https://user-images.githubusercontent.com/43929933/124432690-dc981580-ddac-11eb-82af-f44095647660.png)
+<img width="555" alt="read2" src="https://user-images.githubusercontent.com/43929933/124960956-d7aabe80-e057-11eb-9c72-788a6e389339.png">
 
 同じフォルダに `SongScript.json` が出力されていれば成功です。後は、`camerascript.cfg` の設定を `songSpecificScript=True`に指定すれば、その譜面をプレイする時には、マッピングした通りにカメラが動作してくれるはずです！
 
@@ -21,9 +21,13 @@ Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマッ�
 
 # ログの確認方法
 
-同時に `logs` というフォルダの中に log というテキストファイルが生成されます。生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。例えば、あるコマンドを検出した後に log が途切れていれば、その後のコマンドのパラメータの設定に失敗した可能性が高いです。
+同時に `logs` というフォルダの中に log というテキストファイルが生成されます。
 
-![fig6](https://user-images.githubusercontent.com/43929933/124432709-e02b9c80-ddac-11eb-961a-9613fc0f6da8.png)
+<img width="556" alt="read3" src="https://user-images.githubusercontent.com/43929933/124961134-0c1e7a80-e058-11eb-82fd-3e38eea6e412.png">
+
+生成に失敗した場合、また成功しても、意図したカメラの動きになっていない場合、log を見れば原因がわかるかもしれません。例えば、あるコマンドを検出した後に log が途切れていれば、その後のコマンドのパラメータの設定に失敗した可能性が高いです。
+
+<img width="746" alt="read4" src="https://user-images.githubusercontent.com/43929933/124960744-97e3d700-e057-11eb-94d8-dd6977ed66f4.png">
 
 # スクリプトの設定方法
 
@@ -53,7 +57,7 @@ Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマッ�
 # オリジナルコマンド
 デフォルトコマンドで表現が難しい場合は、自分でパラメータを指定したオリジナルコマンドを作成します。オリジナルコマンドは以下のような csv ファイルを用意し「`input.csv`」と名付けます。（それ以外の名前ではプログラムが認識しません）。雛形として`input.csv`を同梱しているので、その下に書き足していくのが便利だと思います。
 
-![fig2](https://user-images.githubusercontent.com/43929933/124432665-d6a23480-ddac-11eb-9735-7a414c847bab.png)
+<img width="461" alt="read5" src="https://user-images.githubusercontent.com/43929933/124960746-97e3d700-e057-11eb-9fa8-31dadfd102b6.png">
 
 ヘッダー（1行目）の列名の意味は以下になります。
 
@@ -67,6 +71,8 @@ Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマッ�
 |`rx`|カメラの x 角度|
 |`ry`|カメラの y 角度|
 |`rz`|カメラの z 角度|
+
+<img width="782" alt="read6" src="https://user-images.githubusercontent.com/43929933/124961676-ba2a2480-e058-11eb-8afe-9c738df5951a.png">
 
 ---
 
@@ -124,6 +130,9 @@ ex) `vibro1/6`
 
 スクリプトをある範囲で一括コピーします。マップの展開が同じ部分で、以前書いたブックマークを使い回す時に便利です。例えば、100グリッド目で`copy40`と書いたとします。その次のブックマークが120だった場合、コピーを**貼り付ける**範囲は100～120になります。この長さは20です。そしてコピーの**元となる**範囲は40から始まり、同じ長さを持つ部分になります。つまり、40～60の部分が100～120の範囲に転写されます。この時、終点となる60や120丁度のグリッドは転写範囲に**含まれない**ことに注意してください。※
 
+つまり、以下の画像はプログラム上では同じものとして認識されます。
+<img width="779" alt="read9" src="https://user-images.githubusercontent.com/43929933/124960756-9adec780-e057-11eb-8262-4774fe4e8892.png">
+<img width="794" alt="reada" src="https://user-images.githubusercontent.com/43929933/124960762-9c0ff480-e057-11eb-8e5f-0c5ec166018c.png">
 ex) `copy40`
 
 ※開始地点から「終了地点までの」範囲ではなく、「次の範囲の開始地点の直前まで」と考えます。例えば、64グリッド目から更に32グリッド分を含む範囲は95グリッドまでですが、64+32=96グリッド目の「直前まで」と考えた方が計算としてはわかりやすいです。
@@ -132,7 +141,8 @@ ex) `copy40`
 
 スクリプトを反復複製します。例えば、`random3`をある区間何回も繰り返す場合、それらをすべて書くのは面倒です。そのような場合、例えば`fill1/4,random3`と書くことで、同じ記述を反復することができます。つまり、以下の画像はプログラム上では同じものとして認識されます。
 
-![fig3](https://user-images.githubusercontent.com/43929933/124432671-d86bf800-ddac-11eb-927c-23caf4f5bdb2.png)
+<img width="725" alt="read7" src="https://user-images.githubusercontent.com/43929933/124960751-99150400-e057-11eb-8430-2fa2d2da73e4.png">
+<img width="776" alt="read8" src="https://user-images.githubusercontent.com/43929933/124960754-99ad9a80-e057-11eb-9ffe-87f9825b8ea5.png">
 
 fill の後に続く文字列をスパン、カンマで区切られた後の文字列をパターンとして認識します。つまり`fill1/4,random3`は次のブックマークまで、マッパー上のグリッドの 1/4 間隔で`random3`というブックマークを記入し続けます。
 
