@@ -36,65 +36,66 @@ def generate(text, last_pos_rot):
         param = get_param(text, 6, def_value=4)
         print_log('random コマンドを検出', param)
         return random(param)
-    elif text[:6] == 'center':
+    if text[:6] == 'center':
         param = get_param(text, 6, def_value=2)
         print_log('center コマンドを検出', param)
         return center(param)
-    elif text[:4] == 'side':
+    if text[:4] == 'side':
         param = get_param(text, 4, def_value=2.5)
         print_log('side コマンドを検出', param)
         return side(param)
-    elif text[:5] == 'diagf':
+    if text[:5] == 'diagf':
         param = get_param(text, 5, def_value=4)
         print_log('diagf コマンドを検出', param)
         return diagf(param)
-    elif text[:5] == 'diagb':
+    if text[:5] == 'diagb':
         param = get_param(text, 5, def_value=4)
         print_log('diagb コマンドを検出', param)
         return diagb(param)
-    elif text[:3] == 'top':
+    if text[:3] == 'top':
         param = get_param(text, 3, def_value=3)
         print_log('top コマンドを検出', param)
         return top(param)
-    elif text[:6] == "mirror":
+    if text[:6] == "mirror":
         print_log('mirror コマンドを検出')
         return mirror(last_pos_rot)
-    elif text[:4] == "zoom":
+    if text[:4] == "zoom":
         param = get_param(text, 4, def_value=2)
         print_log('zoom コマンドを検出', param)
         return zoom(param, last_pos_rot)
-    elif text[:4] == 'spin':
+    if text[:4] == 'spin':
         param = get_param(text, 4, def_value=20)
         print_log('spin コマンドを検出', param)
         return spin(param, last_pos_rot)
-    elif text[:5] == 'screw':
+    if text[:5] == 'screw':
         param = get_param(text, 5, def_value=2)
         print_log('screw コマンドを検出')
         return screw(param, last_pos_rot)
-    elif text[:5] == 'slide':
+    if text[:5] == 'slide':
         param = get_param(text, 5, def_value=1)
         print_log('slide コマンドを検出', param)
         return slide(param, last_pos_rot)
-    elif text[:5] == 'shift':
+    if text[:5] == 'shift':
         param = get_param(text, 5, def_value=.5)
         print_log('shift コマンドを検出', param)
         return shift(param, last_pos_rot)
-    elif text[:4] == 'push':
+    if text[:4] == 'push':
         param = get_param(text, 4, def_value=1)
         print_log('push コマンドを検出', param)
         return push(param, last_pos_rot)
-    elif text[:4] == 'stop':
+    if text[:4] == 'stop':
         print_log('stop コマンドを検出')
         return stop(last_pos_rot)
-    else:
-        if text in manual.keys():
-            print_log(f'オリジナルコマンド {text} を検出')
-            command = manual[text]
+    for key in manual.keys():
+        length = len(key)
+        script = text[:length]
+        if script == key:
+            print_log(f'オリジナルコマンド {script} を検出')
+            command = manual[script]
             return original(command)
-        else:
-            print_log(
-                f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
-            return stop(last_pos_rot)
+    print_log(
+        f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
+    return stop(last_pos_rot)
 
 
 # ファイルパスの取得
@@ -138,6 +139,7 @@ if os.path.exists(input_path):
     for d in data:
         manual[d['label']] = d
         print_log(d)
+    print_log('')
 else:
     print_log('input.csv が見つからないため、オリジナルコマンドは追加されません。\n')
 
@@ -169,15 +171,15 @@ scripts.append({'_time': dummyend_grid, 'text': 'dummyend'})
 # fillの処理
 scripts, log_text = grid_parse('fill', scripts, dummyend_grid)
 print_log(log_text)
-print_log('fill の処理が正常に終了しました。')
+print_log('fill の処理が正常に終了しました。\n')
 # copyの処理
 scripts, log_text = grid_parse('copy', scripts, dummyend_grid)
 print_log(log_text)
-print_log('copy の処理が正常に終了しました。')
+print_log('copy の処理が正常に終了しました。\n')
 
 # 最終的なグリッド
 cnt = 0
-print_log('特殊コマンドのパースを完了。最終的なスクリプトは以下になります。\n')
+print_log('fill,copy の処理を完了。最終的なスクリプトは以下になります。\n')
 print_log('   　　 　 grid : script')
 for s in scripts:
     cnt += 1
@@ -205,28 +207,22 @@ for b in timed_b:
     text = b['text']
     dur = b['dur']
     if text[:6] == 'rotate':
+        print_log(text)
         print_log('rotate コマンドを確認')
         if any([c.isalpha() for c in text[6:]]):
             print_log(f'パラメータ {text[6:]} に英字を確認。セキュリティの問題上、プログラムを強制終了します。')
             exit()
-        new_lines = rotate(dur, text)
-        for n in new_lines:
-            pos = n['StartPos']
-            rot = n['StartRot']
-            print_log(f'start POS{n["StartPos"]} ROT{n["StartRot"]}')
-            print_log(f'end POS{n["EndPos"]} ROT{n["EndRot"]}')
-            data['Movements'].append(n)
+        new_lines, log_text = rotate(dur, text)
+        data['Movements'].extend(new_lines)
+        print_log(log_text)
         continue
     if text[:5] == 'vibro':
+        print_log(text)
         param = get_param(text, 5, def_value=1/4)
         print_log('vibro コマンドを確認 ', param)
-        new_lines = vibro(dur, bpm, param, last_pos_rot)
-        for n in new_lines:
-            pos = n['StartPos']
-            rot = n['StartRot']
-            print_log(f'start POS{n["StartPos"]} ROT{n["StartRot"]}')
-            print_log(f'end POS{n["EndPos"]} ROT{n["EndRot"]}')
-            data['Movements'].append(n)
+        new_lines, log_text = vibro(dur, bpm, param, last_pos_rot)
+        data['Movements'].extend(new_lines)
+        print_log(log_text)
         continue
     parse = text.split(',')
     if len(parse) == 1:
