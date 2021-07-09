@@ -227,6 +227,9 @@ for b in timed_b:
     parse = text.split(',')
     if len(parse) == 1:
         parse.append('stop')
+        parse.append('False')
+    elif len(parse) == 2:
+        parse.append('False')
     new_line = create_template()
     start_command = parse[0]
     print_log(f'start : {start_command}')
@@ -241,9 +244,16 @@ for b in timed_b:
     new_line['EndPos'] = pos
     new_line['EndRot'] = rot
     new_line['Duration'] = dur
+    ease_command = parse[2]
+    print_log(f'EaseTransition : {ease_command}')
+    if ease_command != 'False':
+        new_lines, log_text = ease(dur, ease_command, new_line)
+        data['Movements'].extend(new_lines)
+        print_log(log_text)
+    else:
+        data['Movements'].append(new_line)
     print_log(f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}')
     print_log(f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}')
-    data['Movements'].append(new_line)
 
 data['Movements'][0]['Duration'] -= 0.04  # モタるよりも走った方が良いので安全側のオフセット
 
