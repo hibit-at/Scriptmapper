@@ -273,7 +273,7 @@ custom_map = path_obj.parent.name
 not_wip_folder = os.path.join(path_obj.parents[2],'CustomLevels',custom_map)
 if os.path.exists(not_wip_folder):
     print_log('カスタムマップに同名のフォルダを確認。こちらにもSongScript.jsonを作成します。\n')
-    not_wip_target = os.path.join(not_wip_folder,'Songscript.json')
+    not_wip_target = os.path.join(not_wip_folder,'SongScript.json')
     json.dump(data, open(not_wip_target, 'w'), indent=4)
     print_log(not_wip_target)
 
