@@ -256,14 +256,26 @@ def vibro(dur, bpm, param, last_pos_rot):
 
 def ease(dur, text, line):
     log_text = ''
-    easetypes = ['easeInSine','easeOutSine','easeInOutSine','easeInCubic','easeOutCubic','easeInOutCubic',
-                'easeInQuint','easeOutQuint','easeInOutQuint','easeInCirc','easeOutCirc','easeInOutCirc',
-                'easeInElastic','easeOutElastic','easeInOutElastic','easeInQuad','easeOutQuad','easeInOutQuad',
-                'easeInQuart','easeOutQuart','easeInOutQuart','easeInExpo','easeOutExpo','easeInOutExpo',
-                'easeInBack','easeOutBack','easeInOutBack','easeInBounce','easeOutBounce','easeInOutBounce']
+    easetypes = ['InSine','OutSine','InOutSine','InCubic','OutCubic','InOutCubic',
+                'InQuint','OutQuint','InOutQuint','InCirc','OutCirc','InOutCirc',
+                'InElastic','OutElastic','InOutElastic','InQuad','OutQuad','InOutQuad',
+                'InQuart','OutQuart','InOutQuart','InExpo','OutExpo','InOutExpo',
+                'InBack','OutBack','InOutBack','InBounce','OutBounce','InOutBounce']
     flag = 0
     for easetype in easetypes:
-        if text.startswith(easetype):
+        u_text = text.upper()
+        u_easetype = easetype.upper()
+        if u_text=='EASE':
+            break
+        if u_text[:4]=='EASE':
+            u_text = u_text[4:]
+        if u_text[:2]=='IO':
+            u_text = 'INOUT' + u_text[2:]
+        if (u_text[0]=='I') & (u_text[1]!='N'):
+            u_text = 'IN' + u_text[1:]
+        if (u_text[0]=='O') & (u_text[1]!='U'):
+            u_text = 'OUT' + u_text[1:]
+        if u_text.startswith(u_easetype):
             log_text += f'easeコマンド {easetype} を検出'
             easefunc = eval(easetype)
             flag = 1
@@ -272,7 +284,7 @@ def ease(dur, text, line):
         if text.startswith('ease'):
             log_text += f'easeコマンドを検出\n'
             log_text += f'有効なeasing関数名が指定されていないため、easeInOutCubic(CameraPlusデフォルト)を返します'
-            easefunc = easeInOutCubic
+            easefunc = InOutCubic
         else:
             log_text += f'！有効なeaseコマンドを検出できません！\n'
             log_text += f'EaseTransition: False としますが、意図しない演出になっています。'
