@@ -3,6 +3,7 @@ from math import atan2, cos, degrees, pi, sin, sqrt
 from random import random as rd
 
 from utils import create_template
+from easefunc import *
 
 
 def random(r):
@@ -250,4 +251,64 @@ def vibro(dur, bpm, param, last_pos_rot):
         pos, rot = (e_pos, e_rot)
         log_text += f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}\n'
         log_text += f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}\n'
+    return ans, log_text
+
+
+def ease(dur, text, line):
+    log_text = ''
+    easetypes = ['easeInSine','easeOutSine','easeInOutSine','easeInCubic','easeOutCubic','easeInOutCubic',
+                'easeInQuint','easeOutQuint','easeInOutQuint','easeInCirc','easeOutCirc','easeInOutCirc',
+                'easeInElastic','easeOutElastic','easeInOutElastic','easeInQuad','easeOutQuad','easeInOutQuad',
+                'easeInQuart','easeOutQuart','easeInOutQuart','easeInExpo','easeOutExpo','easeInOutExpo',
+                'easeInBack','easeOutBack','easeInOutBack','easeInBounce','easeOutBounce','easeInOutBounce']
+    flag = 0
+    for easetype in easetypes:
+        if text.startswith(easetype):
+            log_text += f'easeコマンド {easetype} を検出'
+            easefunc = eval(easetype)
+            flag = 1
+            break
+    if flag == 0:
+        if text.startswith('ease'):
+            log_text += f'easeコマンドを検出\n'
+            log_text += f'有効なeasing関数名が指定されていないため、easeInOutCubic(CameraPlusデフォルト)を返します'
+            easefunc = easeInOutCubic
+        else:
+            log_text += f'！有効なeaseコマンドを検出できません！\n'
+            log_text += f'EaseTransition: False としますが、意図しない演出になっています。'
+            return [line], log_text
+    span = max(1/30, dur/36)
+    spans = []
+    init_dur = deepcopy(dur)
+    while dur > 0.001:
+        min_span = min(span, dur)
+        spans.append(min_span)
+        dur -= min_span
+    span_size = len(spans)
+    ixp, iyp, izp = line['StartPos']['x'], line['StartPos']['y'], line['StartPos']['z']
+    ixr, iyr, izr = line['StartRot']['x'], line['StartRot']['y'], line['StartRot']['z']
+    dxp = line['EndPos']['x'] - line['StartPos']['x']
+    dyp = line['EndPos']['y'] - line['StartPos']['y']
+    dzp = line['EndPos']['z'] - line['StartPos']['z']
+    dxr = line['EndRot']['x']%360 - line['StartRot']['x']%360
+    dyr = line['EndRot']['y']%360 - line['StartRot']['y']%360
+    dzr = line['EndRot']['z']%360 - line['StartRot']['z']%360    
+    lastpos = {'x': ixp, 'y': iyp, 'z': izp}
+    lastrot = {'x': ixr, 'y': iyr, 'z': izr}
+    ans = []
+    for i in range(span_size):
+        new_line = create_template()
+        t = sum(spans[:(i+1)])/init_dur
+        rate = easefunc(t)
+        new_line['StartPos'] = lastpos.copy()
+        new_line['StartRot'] = lastrot.copy()
+        new_line['EndPos'] = {'x': ixp+dxp*rate, 'y': iyp+dyp*rate, 'z': izp+dzp*rate}
+        new_line['EndRot'] = {'x': ixr+dxr*rate, 'y': iyr+dyr*rate, 'z': izr+dzr*rate}
+        new_line['Duration'] = spans[i]
+        # easeの場合はspan毎に逐一ログ出すのは煩雑すぎ？
+        #log_text += f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}\n'
+        #log_text += f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}\n'
+        ans.append(new_line)
+        lastpos = new_line['EndPos'].copy()
+        lastrot = new_line['EndRot'].copy()
     return ans, log_text
