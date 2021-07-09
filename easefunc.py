@@ -2,43 +2,43 @@ from math import cos, pi, sin, sqrt
 
 # Reference: https://easings.net/
 
-def easeInSine(t):
+def InSine(t):
     return 1 - cos((t * pi) / 2)
 
-def easeOutSine(t):
+def OutSine(t):
   return sin((t * pi) / 2)
 
-def easeInOutSine(t):
+def InOutSine(t):
     return -(cos(pi * t) - 1) / 2
 
-def easeInCubic(t):
+def InCubic(t):
     return t * t * t
 
-def easeOutCubic(t):
+def OutCubic(t):
     return 1 - pow(1 - t, 3)
 
-def easeInOutCubic(t):
+def InOutCubic(t):
     return 4 * t * t * t if t < 0.5 else 1 - pow(-2 * t + 2, 3) / 2
 
-def easeInQuint(t):
+def InQuint(t):
     return t * t * t * t * t
 
-def easeOutQuint(t):
+def OutQuint(t):
     return 1 - pow(1 - t, 5)
 
-def easeInOutQuint(t):
+def InOutQuint(t):
     return 16 * t * t * t * t * t if t < 0.5 else 1 - pow(-2 * t + 2, 5) / 2
 
-def easeInCirc(t):
+def InCirc(t):
     return 1 - sqrt(1 - pow(t, 2))
 
-def easeOutCirc(t):
+def OutCirc(t):
     return sqrt(1 - pow(t - 1, 2))
 
-def easeInOutCirc(t):
+def InOutCirc(t):
     return (1 - sqrt(1 - pow(2 * t, 2))) / 2 if t < 0.5 else (sqrt(1 - pow(-2 * t + 2, 2)) + 1) / 2
 
-def easeInElastic(t):
+def InElastic(t):
     c4 = (2 * pi) / 3
     if t==0:
         return 0
@@ -47,7 +47,7 @@ def easeInElastic(t):
     else:
         return -pow(2, 10 * t - 10) * sin((t * 10 - 10.75) * c4)
 
-def easeOutElastic(t):
+def OutElastic(t):
     c4 = (2 * pi) / 3
     if t==0:
         return 0
@@ -56,7 +56,7 @@ def easeOutElastic(t):
     else:
         return pow(2, -10 * t) * sin((t * 10 - 0.75) * c4) + 1
 
-def easeInOutElastic(t):
+def InOutElastic(t):
     c5 = (2 * pi) / 4.5
     if t==0:
         return 0
@@ -67,31 +67,31 @@ def easeInOutElastic(t):
     else:
         return (pow(2, -20 * t + 10) * sin((20 * t - 11.125) * c5)) / 2 + 1
 
-def easeInQuad(t):
+def InQuad(t):
     return t * t
 
-def easeOutQuad(t):
+def OutQuad(t):
     return 1 - (1 - t) * (1 - t)
 
-def easeInOutQuad(t):
+def InOutQuad(t):
     return 2 * t * t if t < 0.5 else 1 - pow(-2 * t + 2, 2) / 2
 
-def easeInQuart(t):
+def InQuart(t):
     return t * t * t * t
 
-def easeOutQuart(t):
+def OutQuart(t):
     return 1 - pow(1 - t, 4)
 
-def easeInOutQuart(t):
+def InOutQuart(t):
     return 8 * t * t * t * t if t < 0.5 else 1 - pow(-2 * t + 2, 4) / 2
 
-def easeInExpo(t):
+def InExpo(t):
     return 0 if t == 0 else pow(2, 10 * t - 10)
 
-def easeOutExpo(t):
+def OutExpo(t):
     return 1 if t == 1 else 1 - pow(2, -10 * t)
 
-def easeInOutExpo(t):
+def InOutExpo(t):
     if t==0:
         return 0
     elif t==1:
@@ -101,25 +101,25 @@ def easeInOutExpo(t):
     else:
         return (2 - pow(2, -20 * t + 10)) / 2
 
-def easeInBack(t):
+def InBack(t):
     c1 = 1.70158
     c3 = c1 + 1
     return c3 * t * t * t - c1 * t * t
 
-def easeOutBack(t):
+def OutBack(t):
     c1 = 1.70158
     c3 = c1 + 1
     return 1 + c3 * pow(t - 1, 3) + c1 * pow(t - 1, 2)
 
-def easeInOutBack(t):
+def InOutBack(t):
     c1 = 1.70158
     c2 = c1 * 1.525
     return (pow(2 * t, 2) * ((c2 + 1) * 2 * t - c2)) / 2 if t < 0.5 else (pow(2 * t - 2, 2) * ((c2 + 1) * (t * 2 - 2) + c2) + 2) / 2
 
-def easeInBounce(t):
-    return 1 - easeOutBounce(1 - t)
+def InBounce(t):
+    return 1 - OutBounce(1 - t)
 
-def easeOutBounce(t):
+def OutBounce(t):
     n1 = 7.5625
     d1 = 2.75
     if t < (1 / d1):
@@ -131,5 +131,5 @@ def easeOutBounce(t):
     else:
         return n1 * (t - 2.625 / d1)**2 + 0.984375
 
-def easeInOutBounce(t):
-    return (1 - easeOutBounce(1 - 2 * t)) / 2 if t < 0.5 else (1 + easeOutBounce(2 * t - 1)) / 2
+def InOutBounce(t):
+    return (1 - OutBounce(1 - 2 * t)) / 2 if t < 0.5 else (1 + OutBounce(2 * t - 1)) / 2
