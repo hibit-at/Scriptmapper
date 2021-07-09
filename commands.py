@@ -170,9 +170,26 @@ def original(command):
 
 
 def rotate(dur, text):
-    param = [eval(i) for i in text[6:].split(',')]
-    r = param[0]
-    h = param[1]
+    log_text = ''
+    # def_value
+    r = 3
+    h = 3
+    a = 1
+    o = 1.0
+    s = 0
+    if len(text) > 6:
+        param = [eval(i) for i in text[6:].split(',')]
+        if len(param) > 0:
+            r = param[0]
+        if len(param) > 1:
+            h = param[1]
+        if len(param) > 2:
+            a = param[2]
+        if len(param) > 3:
+            o = param[3]
+        if len(param) > 4:
+            s = param[4]
+    log_text += f'パラメータ r:{r} h:{h} a:{a} o:{o} s:{s}\n'
     span = max(1/30, dur/36)
     spans = []
     while dur > 0.001:
@@ -185,25 +202,28 @@ def rotate(dur, text):
         new_line = create_template()
         theta = 2*pi*i/span_size - 1/2*pi
         next_theta = 2*pi*(i+1)/span_size - 1/2*pi
-        angle = atan2(h-1, r)
+        angle = atan2(h-a, r)
         px = round(r*cos(theta), 3)
-        pz = round(r*sin(theta)+1, 3)
+        pz = round(r*sin(theta)+o, 3)
         rx = degrees(angle)
         ry = -degrees(theta)+270
         new_line['StartPos'] = {'x': px, 'y': h, 'z': pz}
-        new_line['StartRot'] = {'x': rx, 'y': ry, 'z': 0}
+        new_line['StartRot'] = {'x': rx, 'y': ry, 'z': s}
         px = round(r*cos(next_theta), 3)
-        pz = round(r*sin(next_theta)+1, 3)
+        pz = round(r*sin(next_theta)+o, 3)
         rx = degrees(angle)
         ry = -degrees(next_theta)+270
         new_line['EndPos'] = {'x': px, 'y': h, 'z': pz}
-        new_line['EndRot'] = {'x': rx, 'y': ry, 'z': 0}
+        new_line['EndRot'] = {'x': rx, 'y': ry, 'z': s}
         new_line['Duration'] = spans[i]
+        log_text += f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}\n'
+        log_text += f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}\n'
         ans.append(new_line)
-    return ans
+    return ans, log_text
 
 
 def vibro(dur, bpm, param, last_pos_rot):
+    log_text = ''
     steps = []
     pos, rot = deepcopy(last_pos_rot)
     span = max(1/30, param*60/bpm)
@@ -228,4 +248,6 @@ def vibro(dur, bpm, param, last_pos_rot):
         new_line['Duration'] = s
         ans.append(new_line)
         pos, rot = (e_pos, e_rot)
-    return ans
+        log_text += f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}\n'
+        log_text += f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}\n'
+    return ans, log_text
