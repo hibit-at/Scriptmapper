@@ -2,6 +2,12 @@ from math import cos, pi, sin, sqrt
 
 # Reference: https://easings.net/
 
+easetypes = ['InSine','OutSine','InOutSine','InCubic','OutCubic','InOutCubic',
+             'InQuint','OutQuint','InOutQuint','InCirc','OutCirc','InOutCirc',
+             'InElastic','OutElastic','InOutElastic','InQuad','OutQuad','InOutQuad',
+             'InQuart','OutQuart','InOutQuart','InExpo','OutExpo','InOutExpo',
+             'InBack','OutBack','InOutBack','InBounce','OutBounce','InOutBounce']
+
 def InSine(t):
     return 1 - cos((t * pi) / 2)
 

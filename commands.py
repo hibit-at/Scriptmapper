@@ -254,19 +254,12 @@ def vibro(dur, bpm, param, last_pos_rot):
     return ans, log_text
 
 
+
 def ease(dur, text, line):
     log_text = ''
-    easetypes = ['InSine','OutSine','InOutSine','InCubic','OutCubic','InOutCubic',
-                'InQuint','OutQuint','InOutQuint','InCirc','OutCirc','InOutCirc',
-                'InElastic','OutElastic','InOutElastic','InQuad','OutQuad','InOutQuad',
-                'InQuart','OutQuart','InOutQuart','InExpo','OutExpo','InOutExpo',
-                'InBack','OutBack','InOutBack','InBounce','OutBounce','InOutBounce']
+    u_text = text.upper()
     flag = 0
-    for easetype in easetypes:
-        u_text = text.upper()
-        u_easetype = easetype.upper()
-        if u_text=='EASE':
-            break
+    if u_text!='EASE':
         if u_text[:4]=='EASE':
             u_text = u_text[4:]
         if u_text[:2]=='IO':
@@ -275,13 +268,15 @@ def ease(dur, text, line):
             u_text = 'IN' + u_text[1:]
         if (u_text[0]=='O') & (u_text[1]!='U'):
             u_text = 'OUT' + u_text[1:]
-        if u_text.startswith(u_easetype):
-            log_text += f'easeコマンド {easetype} を検出'
-            easefunc = eval(easetype)
-            flag = 1
-            break
+        for easetype in easetypes:
+            u_easetype = easetype.upper()
+            if u_text.startswith(u_easetype):
+                log_text += f'easeコマンド {easetype} を検出'
+                easefunc = eval(easetype)
+                flag = 1
+                break
     if flag == 0:
-        if text.startswith('ease'):
+        if u_text.startswith('EASE'):
             log_text += f'easeコマンドを検出\n'
             log_text += f'有効なeasing関数名が指定されていないため、easeInOutCubic(CameraPlusデフォルト)を返します'
             easefunc = InOutCubic
@@ -299,12 +294,13 @@ def ease(dur, text, line):
     span_size = len(spans)
     ixp, iyp, izp = line['StartPos']['x'], line['StartPos']['y'], line['StartPos']['z']
     ixr, iyr, izr = line['StartRot']['x'], line['StartRot']['y'], line['StartRot']['z']
-    dxp = line['EndPos']['x'] - line['StartPos']['x']
-    dyp = line['EndPos']['y'] - line['StartPos']['y']
-    dzp = line['EndPos']['z'] - line['StartPos']['z']
-    dxr = line['EndRot']['x']%360 - line['StartRot']['x']%360
-    dyr = line['EndRot']['y']%360 - line['StartRot']['y']%360
-    dzr = line['EndRot']['z']%360 - line['StartRot']['z']%360    
+    lxp, lyp, lzp = line['EndPos']['x'], line['EndPos']['y'], line['EndPos']['z']
+    lxr, lyr, lzr = line['EndRot']['x'], line['EndRot']['y'], line['EndRot']['z']
+    dxp, dyp, dzp = (lxp - ixp), (lyp - iyp), (lzp - izp)
+    dxr, dyr, dzr = (lxr%360 - ixr%360), (lyr%360 - iyr%360), (lzr%360 - izr%360)
+    dxr = dxr if abs(dxr)<180 else lxr - ixr
+    dyr = dyr if abs(dyr)<180 else lyr - iyr
+    dzr = dzr if abs(dzr)<180 else lzr - izr
     lastpos = {'x': ixp, 'y': iyp, 'z': izp}
     lastrot = {'x': ixr, 'y': iyr, 'z': izr}
     ans = []
