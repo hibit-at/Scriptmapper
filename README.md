@@ -5,7 +5,7 @@
 <img width="773" alt="read0" src="https://user-images.githubusercontent.com/43929933/124960735-95817d00-e057-11eb-81b3-41cc6db394e6.png">
 
 # 実行方法
-Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマップフォルダに入れてください。
+Scriptmapper.exe を WIP フォルダ直下にカスタムマップフォルダをコピーし、その中に入れてください。
 
 <img width="545" alt="read1" src="https://user-images.githubusercontent.com/43929933/124960738-974b4080-e057-11eb-8916-055f7e302ec6.png">
 
