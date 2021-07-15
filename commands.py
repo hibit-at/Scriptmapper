@@ -2,11 +2,11 @@ from copy import deepcopy
 from math import atan2, cos, degrees, pi, sin, sqrt
 from random import random as rd
 
-from utils import create_template
 from easefunc import *
+from utils import create_template
 
 
-def random(r):
+def random(r, last_pos_rot):
     theta = rd()*2*pi
     phi = rd()/4*pi
     angle = atan2(r*sin(phi)-1.5, r)
@@ -20,7 +20,7 @@ def random(r):
     return pos, rot
 
 
-def center(r):
+def center(r, last_post_rot):
     if r >= 0:
         pos = {'x': 0,
                'y': 1.5,
@@ -38,7 +38,7 @@ def center(r):
     return pos, rot
 
 
-def side(r):
+def side(r, last_pos_rot):
     pos = {'x': r,
            'y': 1.5,
            'z': 0}
@@ -53,7 +53,7 @@ def side(r):
     return pos, rot
 
 
-def top(h):
+def top(h, last_pos_rot):
     pos = {'x': 0,
            'y': h,
            'z': h/10}
@@ -63,7 +63,7 @@ def top(h):
     return pos, rot
 
 
-def diagb(r):
+def diagb(r, last_pos_rot):
     pos = {'x': r/1.4,
            'y': 3.0,
            'z': -abs(r)/1.4}
@@ -79,7 +79,7 @@ def diagb(r):
     return pos, rot
 
 
-def diagf(r):
+def diagf(r, last_pos_rot):
     pos = {'x': r/1.4,
            'y': 3.0,
            'z': abs(r)/1.4}
@@ -95,7 +95,7 @@ def diagf(r):
     return pos, rot
 
 
-def mirror(last_pos_rot):
+def mirror(dummy, last_pos_rot):
     pos, rot = deepcopy(last_pos_rot)
     pos['x'] *= -1
     rot['y'] *= -1
@@ -148,7 +148,7 @@ def push(r, last_pos_rot):
     return pos, rot
 
 
-def stop(last_pos_rot):
+def stop(dummy, last_pos_rot):
     pos, rot = deepcopy(last_pos_rot)
     return pos, rot
 
