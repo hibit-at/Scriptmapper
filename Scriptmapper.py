@@ -86,10 +86,10 @@ with open(log_path, 'w', encoding='utf-8') as f:
 # WIPの下にあるか確認
 isWIP = path_obj.parent.parent
 if isWIP.name != 'CustomWIPLevels':
-    print_log('WIPフォルダ直下にありません。プログラムを終了します。')
+    print_log('WIPフォルダの下にありません。プログラムを終了します。')
     wait = input()
     exit()
-print_log('WIPフォルダ直下にあることを確認\n')
+print_log('WIPフォルダの下にあることを確認\n')
 
 # BPM計測
 info_path = os.path.join(path_dir, 'info.dat')
