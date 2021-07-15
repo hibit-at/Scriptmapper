@@ -23,7 +23,7 @@ def get_param(text, length, def_value):
     param = def_value
     if len(text) > length:
         param_word = text[length:]
-        print_log(text,param_word) #debug
+        print_log(text, param_word)  # debug
         check = any([c.isalpha() for c in param_word])
         print(param_word)
         if check:
@@ -32,22 +32,24 @@ def get_param(text, length, def_value):
         param = eval(param_word)
     return param
 
+
 commands = {
-    'random' : 4,
-    'center' : -2,
-    'side' : 2.5,
-    'diagf' : 4,
-    'diagb' : 4,
-    'top' : 3,
-    'mirror' : '-',
-    'zoom' : 2,
-    'spin' : 20,
-    'screw' : 2,
-    'slide' : 1,
-    'shift' : .5,
-    'push' : 1,
-    'stop' : '-',
+    'random': 4,
+    'center': -2,
+    'side': 2.5,
+    'diagf': 4,
+    'diagb': 4,
+    'top': 3,
+    'mirror': '-',
+    'zoom': 2,
+    'spin': 20,
+    'screw': 2,
+    'slide': 1,
+    'shift': .5,
+    'push': 1,
+    'stop': '-',
 }
+
 
 def generate(text, last_pos_rot):
     for key in manual.keys():
@@ -65,6 +67,7 @@ def generate(text, last_pos_rot):
     print_log(
         f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
     return stop('-', last_pos_rot)
+
 
 # ファイルパスの取得
 file_path = sys.argv[1]
@@ -112,15 +115,23 @@ else:
     print_log('input.csv が見つからないため、オリジナルコマンドは追加されません。\n')
 
 # bookmarkの抽出（raw_b）
+dummyend_grid = 100
 f = open(file_path, 'r')
 j = json.load(f)
 notes = j['_notes']
-dummyend_grid = notes[-1]['_time']+100
+if len(notes) > 0:
+    dummyend_grid = notes[-1]['_time']+100
 if '_customData' in j.keys():
     raw_b = j['_customData']['_bookmarks']
 else:
     raw_b = j['_bookmarks']
+if len(raw_b) == 0:
+    print_log('この譜面にはブックマークが含まれていません。プログラムを終了します。')
+    exit()
+else:
+    dummyend_grid = max(dummyend_grid, raw_b[-1]['_time'] + 100)
 raw_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
+print_log(f'ダミーエンドをグリッド {dummyend_grid} に設定。')
 
 # 環境コマンドの分離（活用未定）
 scripts = []
@@ -238,10 +249,10 @@ print_log(
 print_log('\nソフト内部でのjsonデータの作成に成功しました。\n')
 
 custom_map = path_obj.parent.name
-not_wip_folder = os.path.join(path_obj.parents[2],'CustomLevels',custom_map)
+not_wip_folder = os.path.join(path_obj.parents[2], 'CustomLevels', custom_map)
 if os.path.exists(not_wip_folder):
     print_log('カスタムマップに同名のフォルダを確認。こちらにもSongScript.jsonを作成します。\n')
-    not_wip_target = os.path.join(not_wip_folder,'SongScript.json')
+    not_wip_target = os.path.join(not_wip_folder, 'SongScript.json')
     json.dump(data, open(not_wip_target, 'w'), indent=4)
     print_log(not_wip_target)
 
