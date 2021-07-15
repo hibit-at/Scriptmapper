@@ -23,6 +23,7 @@ def get_param(text, length, def_value):
     param = def_value
     if len(text) > length:
         param_word = text[length:]
+        print_log(text,param_word) #debug
         check = any([c.isalpha() for c in param_word])
         print(param_word)
         if check:
@@ -31,6 +32,41 @@ def get_param(text, length, def_value):
         param = eval(param_word)
     return param
 
+commands = {
+    'random' : 4,
+    'center' : -2,
+    'side' : 2.5,
+    'diagf' : 4,
+    'diagb' : 4,
+    'top' : 3,
+    'mirror' : '-',
+    'zoom' : 2,
+    'spin' : 20,
+    'screw' : 2,
+    'slide' : 1,
+    'shift' : .5,
+    'push' : 1,
+    'stop' : '-',
+}
+
+def generate(text, last_pos_rot):
+    for key in manual.keys():
+        if text == key:
+            print_log(f'オリジナルコマンド {key} を検出')
+            command = manual[key]
+            return original(command)
+    for c in commands:
+        if text.startswith(c):
+            leng = len(c)
+            param = get_param(text, leng, def_value=commands[c])
+            print_log(f'{c} コマンドを検出 パラメータ：', param)
+            func = eval(c)
+            return func(param, last_pos_rot)
+    print_log(
+        f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
+    return stop('-', last_pos_rot)
+
+'''
 def generate(text, last_pos_rot):
     if text[:6] == 'random':
         param = get_param(text, 6, def_value=4)
@@ -96,7 +132,7 @@ def generate(text, last_pos_rot):
     print_log(
         f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
     return stop(last_pos_rot)
-
+'''
 
 # ファイルパスの取得
 file_path = sys.argv[1]
@@ -199,7 +235,7 @@ for i in range(size-1):
 print_log('\nスクリプトからコマンドへの変換を行います。')
 data = deepcopy(template)
 data['Movements'] = []
-last_pos_rot = center(-2)
+last_pos_rot = center(-2, 'dummy')
 cnt = 0
 for b in timed_b:
     cnt += 1
