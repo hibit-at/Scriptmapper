@@ -23,6 +23,7 @@ def get_param(text, length, def_value):
     param = def_value
     if len(text) > length:
         param_word = text[length:]
+        print_log(text, param_word)  # debug
         check = any([c.isalpha() for c in param_word])
         print(param_word)
         if check:
@@ -31,71 +32,41 @@ def get_param(text, length, def_value):
         param = eval(param_word)
     return param
 
+
+commands = {
+    'random': 4,
+    'center': -2,
+    'side': 2.5,
+    'diagf': 4,
+    'diagb': 4,
+    'top': 3,
+    'mirror': '-',
+    'zoom': 2,
+    'spin': 20,
+    'screw': 2,
+    'slide': 1,
+    'shift': .5,
+    'push': 1,
+    'stop': '-',
+}
+
+
 def generate(text, last_pos_rot):
-    if text[:6] == 'random':
-        param = get_param(text, 6, def_value=4)
-        print_log('random コマンドを検出', param)
-        return random(param)
-    if text[:6] == 'center':
-        param = get_param(text, 6, def_value=2)
-        print_log('center コマンドを検出', param)
-        return center(param)
-    if text[:4] == 'side':
-        param = get_param(text, 4, def_value=2.5)
-        print_log('side コマンドを検出', param)
-        return side(param)
-    if text[:5] == 'diagf':
-        param = get_param(text, 5, def_value=4)
-        print_log('diagf コマンドを検出', param)
-        return diagf(param)
-    if text[:5] == 'diagb':
-        param = get_param(text, 5, def_value=4)
-        print_log('diagb コマンドを検出', param)
-        return diagb(param)
-    if text[:3] == 'top':
-        param = get_param(text, 3, def_value=3)
-        print_log('top コマンドを検出', param)
-        return top(param)
-    if text[:6] == "mirror":
-        print_log('mirror コマンドを検出')
-        return mirror(last_pos_rot)
-    if text[:4] == "zoom":
-        param = get_param(text, 4, def_value=2)
-        print_log('zoom コマンドを検出', param)
-        return zoom(param, last_pos_rot)
-    if text[:4] == 'spin':
-        param = get_param(text, 4, def_value=20)
-        print_log('spin コマンドを検出', param)
-        return spin(param, last_pos_rot)
-    if text[:5] == 'screw':
-        param = get_param(text, 5, def_value=2)
-        print_log('screw コマンドを検出')
-        return screw(param, last_pos_rot)
-    if text[:5] == 'slide':
-        param = get_param(text, 5, def_value=1)
-        print_log('slide コマンドを検出', param)
-        return slide(param, last_pos_rot)
-    if text[:5] == 'shift':
-        param = get_param(text, 5, def_value=.5)
-        print_log('shift コマンドを検出', param)
-        return shift(param, last_pos_rot)
-    if text[:4] == 'push':
-        param = get_param(text, 4, def_value=1)
-        print_log('push コマンドを検出', param)
-        return push(param, last_pos_rot)
-    if text[:4] == 'stop':
-        print_log('stop コマンドを検出')
-        return stop(last_pos_rot)
     for key in manual.keys():
-        length = len(key)
-        script = text[:length]
-        if script == key:
-            print_log(f'オリジナルコマンド {script} を検出')
-            command = manual[script]
+        if text == key:
+            print_log(f'オリジナルコマンド {key} を検出')
+            command = manual[key]
             return original(command)
+    for c in commands:
+        if text.startswith(c):
+            leng = len(c)
+            param = get_param(text, leng, def_value=commands[c])
+            print_log(f'{c} コマンドを検出 パラメータ：', param)
+            func = eval(c)
+            return func(param, last_pos_rot)
     print_log(
         f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
-    return stop(last_pos_rot)
+    return stop('-', last_pos_rot)
 
 
 # ファイルパスの取得
@@ -115,10 +86,10 @@ with open(log_path, 'w', encoding='utf-8') as f:
 # WIPの下にあるか確認
 isWIP = path_obj.parent.parent
 if isWIP.name != 'CustomWIPLevels':
-    print_log('WIPフォルダ直下にありません。プログラムを終了します。')
+    print_log('WIPフォルダの下にありません。プログラムを終了します。')
     wait = input()
     exit()
-print_log('WIPフォルダ直下にあることを確認\n')
+print_log('WIPフォルダの下にあることを確認\n')
 
 # BPM計測
 info_path = os.path.join(path_dir, 'info.dat')
@@ -144,15 +115,23 @@ else:
     print_log('input.csv が見つからないため、オリジナルコマンドは追加されません。\n')
 
 # bookmarkの抽出（raw_b）
+dummyend_grid = 100
 f = open(file_path, 'r')
 j = json.load(f)
 notes = j['_notes']
-dummyend_grid = notes[-1]['_time']+100
+if len(notes) > 0:
+    dummyend_grid = notes[-1]['_time']+100
 if '_customData' in j.keys():
     raw_b = j['_customData']['_bookmarks']
 else:
     raw_b = j['_bookmarks']
+if len(raw_b) == 0:
+    print_log('この譜面にはブックマークが含まれていません。プログラムを終了します。')
+    exit()
+else:
+    dummyend_grid = max(dummyend_grid, raw_b[-1]['_time'] + 100)
 raw_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
+print_log(f'ダミーエンドをグリッド {dummyend_grid} に設定。')
 
 # 環境コマンドの分離（活用未定）
 scripts = []
@@ -199,7 +178,7 @@ for i in range(size-1):
 print_log('\nスクリプトからコマンドへの変換を行います。')
 data = deepcopy(template)
 data['Movements'] = []
-last_pos_rot = center(-2)
+last_pos_rot = center(-2, 'dummy')
 cnt = 0
 for b in timed_b:
     cnt += 1
@@ -270,10 +249,10 @@ print_log(
 print_log('\nソフト内部でのjsonデータの作成に成功しました。\n')
 
 custom_map = path_obj.parent.name
-not_wip_folder = os.path.join(path_obj.parents[2],'CustomLevels',custom_map)
+not_wip_folder = os.path.join(path_obj.parents[2], 'CustomLevels', custom_map)
 if os.path.exists(not_wip_folder):
     print_log('カスタムマップに同名のフォルダを確認。こちらにもSongScript.jsonを作成します。\n')
-    not_wip_target = os.path.join(not_wip_folder,'SongScript.json')
+    not_wip_target = os.path.join(not_wip_folder, 'SongScript.json')
     json.dump(data, open(not_wip_target, 'w'), indent=4)
     print_log(not_wip_target)
 
