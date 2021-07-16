@@ -1,15 +1,15 @@
 # Script Mapper
 
-このツールは、以下のように マッピングソフト 上でブックマークに命令（スクリプト）を書いていくことにより、同じタイミングでカメラが動いてくれるようなカメラスクリプトを作成します。[デモ動画](https://www.youtube.com/watch?v=U3miXkN7Uyo)
+このツールは、以下のようにマッピングソフト上でブックマークに命令（スクリプト）を書いていくことにより、同じタイミングでカメラが動いてくれるようなカメラスクリプトを作成します。[デモ動画](https://www.youtube.com/watch?v=U3miXkN7Uyo)
 
 <img width="773" alt="read0" src="https://user-images.githubusercontent.com/43929933/124960735-95817d00-e057-11eb-81b3-41cc6db394e6.png">
 
 # 実行方法
-Scriptmapper.exe を WIP フォルダ直下にコピーしたカスタムマップフォルダに入れてください。
+WIP フォルダ直下にカスタムマップフォルダをコピーし、その中に Scriptmapper.exe を入れてください。
 
 <img width="545" alt="read1" src="https://user-images.githubusercontent.com/43929933/124960738-974b4080-e057-11eb-8916-055f7e302ec6.png">
 
-本ツールは、ブックマークの編集中にカスタムマップの譜面データを変更してしまう危険性を考慮し、**CustomWIPLevels 直下でないとエラーを起こす**ように設定しています。お手数ですが、必ずマップを CustomWIPLevels にコピーしてから作業を行ってください。
+本ツールは、ブックマークの編集中にカスタムマップの譜面データを変更してしまう危険性を考慮し、**CustomWIPLevels の下にフォルダがないとエラーを起こす**ように設定しています。お手数ですが、必ずカスタムマップフォルダを CustomWIPLevels にコピーしてから、その中で作業を行ってください。
 
 ブックマークでスクリプトを記入した dat ファイルを、Scriptmapper.exe のアイコンにドラッグ＆ドロップしてください。
 
