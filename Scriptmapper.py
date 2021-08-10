@@ -23,7 +23,7 @@ def get_param(text, length, def_value):
     param = def_value
     if len(text) > length:
         param_word = text[length:]
-        print_log(text, param_word)  # debug
+        # print_log(text, param_word)  # debug
         check = any([c.isalpha() for c in param_word])
         print(param_word)
         if check:
