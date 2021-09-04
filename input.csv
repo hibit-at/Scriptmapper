@@ -1,2 +1,2 @@
-﻿label,px,py,pz,lookat,rx,ry,rz
-hibit,0,.5,-2,false,-10,0,0
+﻿label,px,py,pz,lookat,rx,ry,rz,fov
+hibit,0,.5,-2,false,-10,0,0,0

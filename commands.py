@@ -1,47 +1,77 @@
 from copy import deepcopy
-from math import atan2, cos, degrees, pi, sin, sqrt
+from math import atan2, cos, degrees, pi, radians, sin, sqrt
 from random import random as rd
 
 from easefunc import *
 from utils import create_template
 
+command_values = {
+    'random': 4,
+    'center': -2,
+    'side': 2.5,
+    'diagf': 4,
+    'diagb': 4,
+    'top': 3,
+    'mirror': '-',
+    'zoom': 2,
+    'spin': 20,
+    'screw': 2,
+    'slide': 1,
+    'shift': .5,
+    'push': 1,
+    'turn' : 30,
+    'stop': '-',
+}
 
-def random(r, last_pos_rot):
-    theta = rd()*2*pi
-    phi = rd()/4*pi
-    angle = atan2(r*sin(phi)-1.5, r)
+
+# 座標新規生成系
+
+def random(r, last_pos_rot, fov, height):
+    last_theta_deg = last_pos_rot[1]['y']
+    while True:
+        theta = rd()*2*pi
+        theta_deg = -degrees(theta) + 270
+        if abs(theta_deg-last_theta_deg) >= 60:
+            break
+    while True:
+        phi = rd()/2*pi - pi / 6
+        if r*sin(phi)+height >= 0:
+            break
     pos = {'x': round(r*cos(phi)*cos(theta), 1),
-           'y': round(r*sin(phi), 1),
-           'z': round(r*cos(phi)*sin(theta), 1)}
+           'y': round(r*sin(phi)+height, 1),
+           'z': round(r*cos(phi)*sin(theta), 1),
+           'FOV': fov}
     spin = rd()*20-10
-    rot = {'x': int(degrees(angle)),
+    rot = {'x': int(degrees(phi)),
            'y': -int(degrees(theta))+270,
            'z': spin}
     return pos, rot
 
 
-def center(r, last_post_rot):
+def center(r, last_post_rot, fov, height):
     if r >= 0:
         pos = {'x': 0,
-               'y': 1.5,
+               'y': height,
                'z': r}
         rot = {'x': 0,
                'y': 180,
                'z': 0}
     if r < 0:
         pos = {'x': 0,
-               'y': 1.5+abs(r),
+               'y': height+abs(r),
                'z': r}
-        rot = {'x': 45,
+        rot = {'x': 40,
                'y': 0,
                'z': 0}
+    pos['FOV'] = fov
     return pos, rot
 
 
-def side(r, last_pos_rot):
+def side(r, last_pos_rot, fov, height):
     pos = {'x': r,
-           'y': 1.5,
-           'z': 0}
+           'y': height,
+           'z': 0,
+           'FOV': fov}
     if r >= 0:
         rot = {'x': 0,
                'y': -90,
@@ -53,21 +83,23 @@ def side(r, last_pos_rot):
     return pos, rot
 
 
-def top(h, last_pos_rot):
+def top(h, last_pos_rot, fov, height):
     pos = {'x': 0,
            'y': h,
-           'z': h/10}
+           'z': h/10,
+           'FOV': fov}
     rot = {'x': 90,
            'y': 0,
            'z': 0}
     return pos, rot
 
 
-def diagb(r, last_pos_rot):
-    pos = {'x': r/1.4,
+def diagb(r, last_pos_rot, fov, height):
+    pos = {'x': r,
            'y': 3.0,
-           'z': -abs(r)/1.4}
-    angle = degrees(atan2(1.5, abs(r)))
+           'z': -abs(r),
+           'FOV': fov}
+    angle = degrees(atan2(height, abs(r)))
     if r >= 0:
         rot = {'x': angle,
                'y': -45,
@@ -79,11 +111,12 @@ def diagb(r, last_pos_rot):
     return pos, rot
 
 
-def diagf(r, last_pos_rot):
-    pos = {'x': r/1.4,
+def diagf(r, last_pos_rot, fov, height):
+    pos = {'x': r,
            'y': 3.0,
-           'z': abs(r)/1.4}
-    angle = degrees(atan2(1.5, abs(r)))
+           'z': abs(r),
+           'FOV': fov}
+    angle = degrees(atan2(height, abs(r)))
     if r >= 0:
         rot = {'x': angle,
                'y': -135,
@@ -95,79 +128,89 @@ def diagf(r, last_pos_rot):
     return pos, rot
 
 
-def mirror(dummy, last_pos_rot):
+# 座標変化系
+
+def mirror(dummy, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
     pos['x'] *= -1
     rot['y'] *= -1
     return pos, rot
 
 
-def zoom(scale, last_pos_rot):
+def zoom(r, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
-    pos['x'] /= scale
-    pos['y'] -= 1.5
-    pos['y'] /= scale
-    pos['y'] += 1.5
-    pos['z'] /= scale
+    pos['FOV'] -= r
     return pos, rot
 
 
-def spin(r, last_pos_rot):
+def spin(r, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
     rot['z'] += r
     return pos, rot
 
 
-def screw(scale, last_pos_rot):
+def screw(r, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
-    angle = 20*(1-scale)
-    pos['x'] /= scale
-    pos['y'] -= 1.5
-    pos['y'] /= scale
-    pos['y'] += 1.5
-    pos['z'] /= scale
-    rot['z'] += angle
+    pos['FOV'] -= r
+    rot['z'] += r*2
     return pos, rot
 
 
-def slide(r, last_pos_rot):
+def slide(r, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
     pos['x'] += r
     return pos, rot
 
 
-def shift(r, last_pos_rot):
+def shift(r, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
     pos['y'] += r
     return pos, rot
 
 
-def push(r, last_pos_rot):
+def push(r, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
     pos['z'] += r
     return pos, rot
 
 
-def stop(dummy, last_pos_rot):
+def turn(r, last_pos_rot, fov, height):
+    pos, rot = deepcopy(last_pos_rot)
+    px = pos['x']
+    pz = pos['z']
+    arm = sqrt(px**2+pz**2)
+    theta = atan2(pz,px)
+    theta += radians(r)
+    pos['x'] = arm * cos(theta)
+    pos['z'] = arm * sin(theta)
+    rot['y'] -= r
+    return pos,rot    
+
+def stop(dummy, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
     return pos, rot
 
 
-def original(command):
+# オリジナルコマンド
+
+def original(command, height):
     cx = float(command['px'])
     cy = float(command['py'])
     cz = float(command['pz'])
-    pos = {'x': cx, 'y': cy, 'z': cz}
+    fov = int(command['fov'])
+    pos = {'x': cx, 'y': cy, 'z': cz, 'FOV': fov}
     if command['lookat'].lower() == 'true':
         theta = atan2(cz, cx)
         theta = -int(degrees(theta))+270
         r = sqrt(cx**2+cz**2)
-        angle = int(degrees(atan2(cy-1.5, r)))
+        angle = int(degrees(atan2(cy-height, r)))
         rot = {'x': angle, 'y': theta, 'z': 0}
     else:
         rot = {'x': float(command['rx']), 'y': float(
             command['ry']), 'z': float(command['rz'])}
     return pos, rot
+
+# 区間コマンド
 
 
 def rotate(dur, text):
@@ -254,19 +297,18 @@ def vibro(dur, bpm, param, last_pos_rot):
     return ans, log_text
 
 
-
-def ease(dur, text, line):
+def ease(dur, text, line, isHead, height):  # レイクンさんへ。追従モードのON/OFFと、アバターの身長設定を追加しました。
     log_text = ''
     u_text = text.upper()
     flag = 0
-    if u_text!='EASE':
-        if u_text[:4]=='EASE':
+    if u_text != 'EASE':
+        if u_text[:4] == 'EASE':
             u_text = u_text[4:]
-        if u_text[:2]=='IO':
+        if u_text[:2] == 'IO':
             u_text = 'INOUT' + u_text[2:]
-        if (u_text[0]=='I') & (u_text[1]!='N'):
+        if (u_text[0] == 'I') & (u_text[1] != 'N'):
             u_text = 'IN' + u_text[1:]
-        if (u_text[0]=='O') & (u_text[1]!='U'):
+        if (u_text[0] == 'O') & (u_text[1] != 'U'):
             u_text = 'OUT' + u_text[1:]
         for easetype in easetypes:
             u_easetype = easetype.upper()
@@ -296,26 +338,37 @@ def ease(dur, text, line):
     ixr, iyr, izr = line['StartRot']['x'], line['StartRot']['y'], line['StartRot']['z']
     lxp, lyp, lzp = line['EndPos']['x'], line['EndPos']['y'], line['EndPos']['z']
     lxr, lyr, lzr = line['EndRot']['x'], line['EndRot']['y'], line['EndRot']['z']
+    # fovの設定も追加しています。
+    iFOV = line['StartPos']['FOV']
+    lFOV = line['EndPos']['FOV']
+    #
     dxp, dyp, dzp = (lxp - ixp), (lyp - iyp), (lzp - izp)
-    dxr, dyr, dzr = (lxr%360 - ixr%360), (lyr%360 - iyr%360), (lzr%360 - izr%360)
-    dxr = dxr if abs(dxr)<180 else lxr - ixr
-    dyr = dyr if abs(dyr)<180 else lyr - iyr
-    dzr = dzr if abs(dzr)<180 else lzr - izr
-    lastpos = {'x': ixp, 'y': iyp, 'z': izp}
+    dxr, dyr, dzr = (lxr % 360 - ixr % 360), (lyr %
+                                              360 - iyr % 360), (lzr % 360 - izr % 360)
+    dxr = dxr if abs(dxr) < 180 else lxr - ixr
+    dyr = dyr if abs(dyr) < 180 else lyr - iyr
+    dzr = dzr if abs(dzr) < 180 else lzr - izr
+    # fov
+    dFOV = lFOV-iFOV
+    #
+    lastpos = {'x': ixp, 'y': iyp, 'z': izp, 'FOV': iFOV}
     lastrot = {'x': ixr, 'y': iyr, 'z': izr}
     ans = []
     for i in range(span_size):
-        new_line = create_template()
+        new_line = create_template(isHead, height)
         t = sum(spans[:(i+1)])/init_dur
         rate = easefunc(t)
         new_line['StartPos'] = lastpos.copy()
         new_line['StartRot'] = lastrot.copy()
-        new_line['EndPos'] = {'x': ixp+dxp*rate, 'y': iyp+dyp*rate, 'z': izp+dzp*rate}
-        new_line['EndRot'] = {'x': ixr+dxr*rate, 'y': iyr+dyr*rate, 'z': izr+dzr*rate}
+        new_line['EndPos'] = {'x': ixp+dxp*rate,
+                              'y': iyp+dyp*rate, 'z': izp+dzp*rate,
+                              'FOV': iFOV + dFOV*rate}
+        new_line['EndRot'] = {'x': ixr+dxr*rate,
+                              'y': iyr+dyr*rate, 'z': izr+dzr*rate}
         new_line['Duration'] = spans[i]
         # easeの場合はspan毎に逐一ログ出すのは煩雑すぎ？
-        #log_text += f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}\n'
-        #log_text += f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}\n'
+        # log_text += f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}\n'
+        # log_text += f'end POS{new_line["EndPos"]} ROT{new_line["EndRot"]}\n'
         ans.append(new_line)
         lastpos = new_line['EndPos'].copy()
         lastrot = new_line['EndRot'].copy()
