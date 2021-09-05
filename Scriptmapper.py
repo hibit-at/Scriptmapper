@@ -34,7 +34,7 @@ def get_param(text, length, def_value):
     return param
 
 
-def generate(text, last_pos_rot, height=1.5):
+def generate(text, last_pos_rot, fov, height=1.5):
     for key in manual.keys():
         if text == key:
             print_log(f'オリジナルコマンド {key} を検出')
@@ -51,7 +51,7 @@ def generate(text, last_pos_rot, height=1.5):
             return ans
     print_log(
         f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
-    return stop('-', last_pos_rot, height)
+    return stop('-', last_pos_rot, fov, height)
 
 
 def env_command(text):
@@ -282,7 +282,7 @@ for b in timed_b:
     new_line = create_template(isHead, height)
     start_command = parse[0]
     print_log(f'start : {start_command}')
-    pos, rot = generate(start_command, last_pos_rot, height)
+    pos, rot = generate(start_command, last_pos_rot, fov, height)
     last_pos_rot = (pos, rot)
     # print_log('臨時ログ', last_pos_rot)
     new_line['StartPos'] = pos
