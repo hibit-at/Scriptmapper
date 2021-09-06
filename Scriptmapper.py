@@ -4,7 +4,8 @@ import os
 import pathlib
 import sys
 from copy import deepcopy
-from datetime import datetime, time
+from datetime import datetime
+import shutil
 
 from commands import *
 from utils import create_template, grid_parse, template
@@ -47,12 +48,10 @@ def generate(text, last_pos_rot, fov, height=1.5):
             print_log(f'{c} コマンドを検出　パラメータ：', param)
             func = eval(c)
             ans = func(param, last_pos_rot, fov, height)
-            # ans[0]['FOV'] = fov
             return ans
     print_log(
         f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
     return stop('-', last_pos_rot, fov, height)
-
 
 def env_command(text):
     global fov
@@ -60,27 +59,11 @@ def env_command(text):
     global last_pos_rot
     global isHead
     if text[:3] == 'fov':
-        param = 60
-        if len(text) > 3:
-            param_word = text[3:]
-            check = any([c.isalpha() for c in param_word])
-            if check:
-                print_log(
-                    f'パラメータ {param_word} に英字を確認。セキュリティの問題上、プログラムを強制終了します。')
-                exit()
-            param = eval(param_word)
+        param = get_param(text, 3 , 60)
         print_log('fov コマンドを検出。FOVを以下の値にします。', param)
         fov = param
     elif text[:4] == 'seed':
-        param = 0
-        if len(text) > 4:
-            param_word = text[4:]
-            check = any([c.isalpha() for c in param_word])
-            if check:
-                print_log(
-                    f'パラメータ {param_word} に英字を確認。セキュリティの問題上、プログラムを強制終了します。')
-                exit()
-            param = eval(param_word)
+        param = get_param(text,4,0)
         print_log('seed コマンドを検出。ランダムシードを以下の値にします。：', param)
         seed(param)
         last_pos_rot = center(-2, 'dummy', fov, height)  # 直前の座標をリセット
@@ -88,16 +71,8 @@ def env_command(text):
         print_log('head コマンドを検出。HMD追従モードを切り替えます。', isHead, '->', not isHead)
         isHead = not isHead
     elif text[:6] == 'height':
-        param = 1.5
-        if len(text) > 6:
-            param_word = text[6:]
-            check = any([c.isalpha() for c in param_word])
-            if check:
-                print_log(
-                    f'パラメータ {param_word} に英字を確認。セキュリティの問題上、プログラムを強制終了します。')
-                exit()
-            param = eval(param_word)
-        print_log('height コマンドを検出。アバターの身長を以下の値にします。：', param)
+        param = get_param(text, 6, 1.5)
+        print_log('height コマンドを検出。アバターの視点を以下の値にします。：', param)
         height = param
     else:
         print_log('！有効な環境コマンドを検出できません！')
@@ -110,10 +85,7 @@ path_dir = path_obj.parent
 
 # ログファイルの作成
 now = str(datetime.now()).replace(':', '_')[:19]
-log_folder_path = os.path.join(path_dir, 'logs')
-if not os.path.exists(log_folder_path):
-    os.mkdir(log_folder_path)
-log_path = os.path.join(log_folder_path, f'log_{now}.txt')
+log_path = os.path.join(path_dir, 'log_latest.txt')
 with open(log_path, 'w', encoding='utf-8') as f:
     f.write(f"logfile at {now}\n\n")
 
@@ -316,10 +288,11 @@ debug += 0.04
 print_log('\n全スクリプトの解析を終了しました。')
 
 print_log(
-    f'\nスクリプト占有時間 {int(debug//60)} m {debug%60} s 最後のブックマークの再生時間と一致していれば正常。')
+    f'\nスクリプト占有時間 {int(debug//60)} m {debug%60} s 最後のブックマークの開始時間と一致していれば正常。')
 
 print_log('\nソフト内部でのjsonデータの作成に成功しました。\n')
 
+# SongScriptの書き出し
 custom_map = path_obj.parent.name
 not_wip_folder = os.path.join(path_obj.parents[2], 'CustomLevels', custom_map)
 if os.path.exists(not_wip_folder):
@@ -331,5 +304,12 @@ if os.path.exists(not_wip_folder):
 target_path = os.path.join(path_dir, 'SongScript.json')
 print_log(target_path)
 json.dump(data, open(target_path, 'w'), indent=4)
+
+# ログファイルをlogsに複製
+log_folder_path = os.path.join(path_dir, 'logs')
+if not os.path.exists(log_folder_path):
+    os.mkdir(log_folder_path)
+copy_path = os.path.join(log_folder_path, f'log_{now}.txt')
+shutil.copyfile(log_path, copy_path)
 
 print_log('\nファイルの書き出しを正常に完了しました。')
