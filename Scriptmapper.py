@@ -148,6 +148,9 @@ size = len(raw_b)
 for i in range(size-1):
     text = raw_b[i]['_name']
     grid = raw_b[i]['_time']
+    if text == '':
+        text = 'stop'
+        print_log(f'！{grid} に空白のブックマークを検出したため、stop を代入します。')
     scripts.append({'time': grid, 'text': text})
 scripts.append({'time': dummyend_grid, 'text': 'dummyend'})
 
