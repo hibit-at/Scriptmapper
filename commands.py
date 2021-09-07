@@ -339,34 +339,37 @@ def ease(dur, text, line, isHead, height):  # レイクンさんへ。追従モ�
     ixr, iyr, izr = line['StartRot']['x'], line['StartRot']['y'], line['StartRot']['z']
     lxp, lyp, lzp = line['EndPos']['x'], line['EndPos']['y'], line['EndPos']['z']
     lxr, lyr, lzr = line['EndRot']['x'], line['EndRot']['y'], line['EndRot']['z']
+    # dr の補正、前のプログラムだと abs(lr-ir)>180 の状況だと補正が効かなかったので計算方法を変更しました。
+    lxr = ixr + (lxr - ixr + 180) % 360 - 180
+    lyr = iyr + (lyr - iyr + 180) % 360 - 180
+    lzr = izr + (lzr - izr + 180) % 360 - 180
+    #
     # fovの設定も追加しています。
     iFOV = line['StartPos']['FOV']
     lFOV = line['EndPos']['FOV']
     #
-    dxp, dyp, dzp = (lxp - ixp), (lyp - iyp), (lzp - izp)
-    dxr, dyr, dzr = (lxr % 360 - ixr % 360), (lyr %
-                                              360 - iyr % 360), (lzr % 360 - izr % 360)
-    # dr の補正、前のプログラムだと abs(lr-ir)>180 の状況だと補正が効かなかったので修正しました。
-    dxr = (dxr+180) % 360 - 180
-    dyr = (dyr+180) % 360 - 180
-    dzr = (dzr+180) % 360 - 180
-    # fov
-    dFOV = lFOV-iFOV
-    #
     lastpos = {'x': ixp, 'y': iyp, 'z': izp, 'FOV': iFOV}
     lastrot = {'x': ixr, 'y': iyr, 'z': izr}
     ans = []
+    def interpolate(start,end,rate):
+        return start*(1-rate) + end*rate
     for i in range(span_size):
         new_line = create_template(isHead, height)
         t = sum(spans[:(i+1)])/init_dur
         rate = easefunc(t)
         new_line['StartPos'] = lastpos.copy()
         new_line['StartRot'] = lastrot.copy()
-        new_line['EndPos'] = {'x': ixp+dxp*rate,
-                              'y': iyp+dyp*rate, 'z': izp+dzp*rate,
-                              'FOV': iFOV + dFOV*rate}
-        new_line['EndRot'] = {'x': ixr+dxr*rate,
-                              'y': iyr+dyr*rate, 'z': izr+dzr*rate}
+        new_line['EndPos'] = {
+            'x' : interpolate(ixp,lxp,rate),
+            'y' : interpolate(iyp,lyp,rate),
+            'z' : interpolate(izp,lzp,rate),
+            'FOV' : interpolate(iFOV,lFOV,rate)
+        }
+        new_line['EndRot'] = {
+            'x' : interpolate(ixr,lxr,rate),
+            'y' : interpolate(iyr,lyr,rate),
+            'z' : interpolate(izr,lzr,rate),
+        }
         new_line['Duration'] = spans[i]
         # easeの場合はspan毎に逐一ログ出すのは煩雑すぎ？
         # log_text += f'start POS{new_line["StartPos"]} ROT{new_line["StartRot"]}\n'
