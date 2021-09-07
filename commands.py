@@ -19,12 +19,12 @@ command_values = {
     'slide': 1,
     'shift': .5,
     'push': 1,
-    'turn' : 30,
+    'turn': 30,
     'stop': '-',
 }
 
-
 # 座標新規生成系
+
 
 def random(r, last_pos_rot, fov, height):
     last_theta_deg = last_pos_rot[1]['y']
@@ -179,12 +179,13 @@ def turn(r, last_pos_rot, fov, height):
     px = pos['x']
     pz = pos['z']
     arm = sqrt(px**2+pz**2)
-    theta = atan2(pz,px)
+    theta = atan2(pz, px)
     theta += radians(r)
     pos['x'] = arm * cos(theta)
     pos['z'] = arm * sin(theta)
     rot['y'] -= r
-    return pos,rot    
+    return pos, rot
+
 
 def stop(dummy, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
@@ -345,9 +346,10 @@ def ease(dur, text, line, isHead, height):  # レイクンさんへ。追従モ�
     dxp, dyp, dzp = (lxp - ixp), (lyp - iyp), (lzp - izp)
     dxr, dyr, dzr = (lxr % 360 - ixr % 360), (lyr %
                                               360 - iyr % 360), (lzr % 360 - izr % 360)
-    dxr = dxr if abs(dxr) < 180 else lxr - ixr
-    dyr = dyr if abs(dyr) < 180 else lyr - iyr
-    dzr = dzr if abs(dzr) < 180 else lzr - izr
+    # dr の補正、前のプログラムだと abs(lr-ir)>180 の状況だと補正が効かなかったので修正しました。
+    dxr = (dxr+180) % 360 - 180
+    dyr = (dyr+180) % 360 - 180
+    dzr = (dzr+180) % 360 - 180
     # fov
     dFOV = lFOV-iFOV
     #
