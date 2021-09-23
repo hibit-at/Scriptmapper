@@ -44,6 +44,12 @@ def generate(text, last_pos_rot, fov, height=1.5):
     for c in command_values:
         if text.startswith(c):
             leng = len(c)
+            # dposの例外
+            if c == 'dpos':
+                param = text[4:]
+                print_log(f'{c} コマンドを検出　パラメータ：', param)
+                ans = dpos(param, last_pos_rot, fov, height)
+                return ans
             param = get_param(text, leng, def_value=command_values[c])
             print_log(f'{c} コマンドを検出　パラメータ：', param)
             func = eval(c)
@@ -165,7 +171,7 @@ print_log('copy の処理が正常に終了しました。\n')
 
 
 # 最終的なグリッド
-cnt = 0
+cnt = 1
 print_log('fill,copy の処理を完了。最終的なスクリプトは以下になります。\n')
 print_log('   　　 　 grid : script')
 for s in scripts:
@@ -259,12 +265,11 @@ for b in timed_b:
     print_log(f'start : {start_command}')
     pos, rot = generate(start_command, last_pos_rot, fov, height)
     last_pos_rot = (pos, rot)
-    # print_log('臨時ログ', last_pos_rot)
     new_line['StartPos'] = pos
     new_line['StartRot'] = rot
     end_command = parse[1]
     print_log(f'end : {end_command}')
-    pos, rot = generate(end_command, last_pos_rot, height)
+    pos, rot = generate(end_command, last_pos_rot, fov, height)
     last_pos_rot = (pos, rot)
     new_line['EndPos'] = pos
     new_line['EndRot'] = rot
