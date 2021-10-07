@@ -351,7 +351,8 @@ def ease(dur, text, line, isHead, height):  # レイクンさんへ。追従モ�
     lastpos = {'x': ixp, 'y': iyp, 'z': izp, 'FOV': iFOV}
     lastrot = {'x': ixr, 'y': iyr, 'z': izr}
     ans = []
-    def interpolate(start,end,rate):
+
+    def interpolate(start, end, rate):
         return start*(1-rate) + end*rate
     for i in range(span_size):
         new_line = create_template(isHead, height)
@@ -360,15 +361,15 @@ def ease(dur, text, line, isHead, height):  # レイクンさんへ。追従モ�
         new_line['StartPos'] = lastpos.copy()
         new_line['StartRot'] = lastrot.copy()
         new_line['EndPos'] = {
-            'x' : interpolate(ixp,lxp,rate),
-            'y' : interpolate(iyp,lyp,rate),
-            'z' : interpolate(izp,lzp,rate),
-            'FOV' : interpolate(iFOV,lFOV,rate)
+            'x': interpolate(ixp, lxp, rate),
+            'y': interpolate(iyp, lyp, rate),
+            'z': interpolate(izp, lzp, rate),
+            'FOV': interpolate(iFOV, lFOV, rate)
         }
         new_line['EndRot'] = {
-            'x' : interpolate(ixr,lxr,rate),
-            'y' : interpolate(iyr,lyr,rate),
-            'z' : interpolate(izr,lzr,rate),
+            'x': interpolate(ixr, lxr, rate),
+            'y': interpolate(iyr, lyr, rate),
+            'z': interpolate(izr, lzr, rate),
         }
         new_line['Duration'] = spans[i]
         # easeの場合はspan毎に逐一ログ出すのは煩雑すぎ？
