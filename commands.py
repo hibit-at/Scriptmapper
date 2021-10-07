@@ -21,6 +21,7 @@ command_values = {
     'push': 1,
     'turn': 30,
     'stop': '-',
+    'dpos': '-',
 }
 
 # 座標新規生成系
@@ -127,8 +128,27 @@ def diagf(r, last_pos_rot, fov, height):
                'z': 0}
     return pos, rot
 
+def dpos(r, last_pos_rot, fov, height):
+    params = str(r).split('_')
+    print(params)
+    cx = float(params[0])
+    cy = float(params[1])
+    cz = float(params[2])
+    pos = {'x': cx,
+           'y': cy,
+           'z': cz,
+           'FOV': fov}
+    theta = atan2(cz, cx)
+    theta = -int(degrees(theta))+270
+    r = sqrt(cx**2+cz**2)
+    angle = int(degrees(atan2(cy-height, r)))
+    rot = {'x': angle,
+           'y': theta,
+           'z': 0}
+    return pos, rot
 
 # 座標変化系
+
 
 def mirror(dummy, last_pos_rot, fov, height):
     pos, rot = deepcopy(last_pos_rot)
