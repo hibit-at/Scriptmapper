@@ -134,10 +134,14 @@ def dpos(r, last_pos_rot, fov, height):
     cx = float(params[0])
     cy = float(params[1])
     cz = float(params[2])
+    if len(params) > 3:
+        cFOV = float(params[3])
+    else:
+        cFOV = fov
     pos = {'x': cx,
            'y': cy,
            'z': cz,
-           'FOV': fov}
+           'FOV': cFOV}
     theta = atan2(cz, cx)
     theta = -int(degrees(theta))+270
     r = sqrt(cx**2+cz**2)
