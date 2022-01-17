@@ -40,16 +40,10 @@ def generate(text, last_pos_rot, fov, height=1.5):
         if text == key:
             print_log(f'オリジナルコマンド {key} を検出')
             command = manual[key]
-            return original(command, height)
+            return original(command, height, last_pos_rot, fov)
     for c in command_values:
         if text.startswith(c):
             leng = len(c)
-            # dposの例外
-            if c == 'dpos':
-                param = text[4:]
-                print_log(f'{c} コマンドを検出　パラメータ：', param)
-                ans = dpos(param, last_pos_rot, fov, height)
-                return ans
             param = get_param(text, leng, def_value=command_values[c])
             print_log(f'{c} コマンドを検出　パラメータ：', param)
             func = eval(c)
@@ -59,17 +53,89 @@ def generate(text, last_pos_rot, fov, height=1.5):
         f'！スクリプト {text} はコマンドに変換できません！\n直前の座標を返しますが、意図しない演出になっています。')
     return stop('-', last_pos_rot, fov, height)
 
+
+def adjust(text, last_pos_rot, fov, height=1.5):
+    dollar_split = text.split('$')
+    pre_dollar = dollar_split[0]
+    under_split = pre_dollar.split('_')
+    main_text = under_split[0]
+    pos, rot = generate(main_text, last_pos_rot, fov, height)
+    if len(under_split) > 1:
+        after_under = under_split[1:]
+        if text[:4] == 'dpos':
+            for i, a in enumerate(after_under):
+                param = float(a)
+                print_log(f'dpos シーケンシャル調整_{param}')
+                if i == 0:
+                    pos['x'] = param
+                if i == 1:
+                    pos['y'] = param
+                if i == 2:
+                    pos['z'] = param
+                if i == 3:
+                    pos['FOV'] = param
+        if text[0] == 'q':
+            for i, a in enumerate(after_under):
+                param = float(a)
+                print_log(f'q シーケンシャル調整_{param}')
+                if i == 0:
+                    pos['x'] = param
+                if i == 1:
+                    pos['y'] = param
+                if i == 2:
+                    pos['z'] = param
+                if i == 3:
+                    rot['x'] = param
+                if i == 4:
+                    rot['y'] = param
+                if i == 5:
+                    rot['z'] = param
+                if i == 6:
+                    pos['FOV'] = param
+    if len(dollar_split) > 1:
+        adjust_command = dollar_split[1:]
+        for a in adjust_command:
+            print_log(f'調整コマンド {a} を確認')
+            inital = a[0]
+            param = float(a[1:])
+            if inital == 'X':
+                pos['x'] = param
+            elif inital == 'Y':
+                pos['y'] = param
+            elif inital == 'Z':
+                pos['z'] = param
+            elif inital == 'F':
+                pos['FOV'] = param
+            elif inital == 'x':
+                rot['x'] = param
+            elif inital == 'y':
+                rot['y'] = param
+            elif inital == 'z':
+                rot['z'] = param
+            else:
+                print_log('無効な調整コマンドです。調整は行われません。')
+    # dpos専用に角度の調整
+    if text[:4] == 'dpos':
+        px, py, pz = pos['x'], pos['y'], pos['z']
+        theta = atan2(pz, px)
+        theta = -int(degrees(theta))+270
+        r = sqrt(px**2+pz**2)
+        angle = int(degrees(atan2(py-height, r)))
+        rot = {'x': angle, 'y': theta, 'z': last_pos_rot[1]['z']}
+    return pos, rot
+
+
 def env_command(text):
     global fov
     global height
     global last_pos_rot
     global isHead
     if text[:3] == 'fov':
-        param = get_param(text, 3 , 60)
+        param = get_param(text, 3, 60)
         print_log('fov コマンドを検出。FOVを以下の値にします。', param)
         fov = param
     elif text[:4] == 'seed':
-        param = get_param(text,4,0)
+        param = get_param(text, 4, 0)
         print_log('seed コマンドを検出。ランダムシードを以下の値にします。：', param)
         seed(param)
         last_pos_rot = center(-2, 'dummy', fov, height)  # 直前の座標をリセット
@@ -121,8 +187,8 @@ if os.path.exists(input_path):
     data = csv.DictReader(open(input_path, 'r', encoding='utf-8-sig'))
     for d in data:
         if 'fov' not in d:
-            d['fov'] = 60
-            print_log('オリジナルコマンドにfovが設定されていないため、60 を設定しました。')
+            d['fov'] = 'env'
+            print_log('オリジナルコマンドにfovが設定されていないため、環境FOVを引き継ぎます。')
         manual[d['label']] = d
         print_log(d)
     print_log('')
@@ -263,13 +329,13 @@ for b in timed_b:
     new_line = create_template(isHead, height)
     start_command = parse[0]
     print_log(f'start : {start_command}')
-    pos, rot = generate(start_command, last_pos_rot, fov, height)
+    pos, rot = adjust(start_command, last_pos_rot, fov, height)
     last_pos_rot = (pos, rot)
     new_line['StartPos'] = pos
     new_line['StartRot'] = rot
     end_command = parse[1]
     print_log(f'end : {end_command}')
-    pos, rot = generate(end_command, last_pos_rot, fov, height)
+    pos, rot = adjust(end_command, last_pos_rot, fov, height)
     last_pos_rot = (pos, rot)
     new_line['EndPos'] = pos
     new_line['EndRot'] = rot

@@ -22,6 +22,7 @@ command_values = {
     'turn': 30,
     'stop': '-',
     'dpos': '-',
+    'q': '-',
 }
 
 # 座標新規生成系
@@ -128,26 +129,25 @@ def diagf(r, last_pos_rot, fov, height):
                'z': 0}
     return pos, rot
 
+
 def dpos(r, last_pos_rot, fov, height):
-    params = str(r).split('_')
-    print(params)
-    cx = float(params[0])
-    cy = float(params[1])
-    cz = float(params[2])
-    if len(params) > 3:
-        cFOV = float(params[3])
-    else:
-        cFOV = fov
-    pos = {'x': cx,
-           'y': cy,
-           'z': cz,
-           'FOV': cFOV}
-    theta = atan2(cz, cx)
-    theta = -int(degrees(theta))+270
-    r = sqrt(cx**2+cz**2)
-    angle = int(degrees(atan2(cy-height, r)))
-    rot = {'x': angle,
-           'y': theta,
+    pos = {'x': 0,
+           'y': 0,
+           'z': 0,
+           'FOV': fov}
+    rot = {'x': 0,
+           'y': 0,
+           'z': 0}
+    return pos, rot
+
+
+def q(r, last_pos_rot, fov ,height):
+    pos = {'x': 0,
+           'y': 0,
+           'z': 0,
+           'FOV': fov}
+    rot = {'x': 0,
+           'y': 0,
            'z': 0}
     return pos, rot
 
@@ -218,18 +218,22 @@ def stop(dummy, last_pos_rot, fov, height):
 
 # オリジナルコマンド
 
-def original(command, height):
+def original(command, height, last_pos_rot, fov):
     cx = float(command['px'])
     cy = float(command['py'])
     cz = float(command['pz'])
-    fov = int(command['fov'])
-    pos = {'x': cx, 'y': cy, 'z': cz, 'FOV': fov}
+    if command['fov'] == 'env':
+        cfov = fov
+    else:
+        cfov = int(command['fov'])
+    pos = {'x': cx, 'y': cy, 'z': cz, 'FOV': cfov}
     if command['lookat'].lower() == 'true':
         theta = atan2(cz, cx)
         theta = -int(degrees(theta))+270
         r = sqrt(cx**2+cz**2)
         angle = int(degrees(atan2(cy-height, r)))
-        rot = {'x': angle, 'y': theta, 'z': 0}
+        print(last_pos_rot)
+        rot = {'x': angle, 'y': theta, 'z': last_pos_rot[1]['z']}
     else:
         rot = {'x': float(command['rx']), 'y': float(
             command['ry']), 'z': float(command['rz'])}
