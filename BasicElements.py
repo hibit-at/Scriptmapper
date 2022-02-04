@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from math import degrees, sqrt, atan2
 
 
 class Bookmark:
@@ -50,6 +51,15 @@ class Transform:
         self.pos = transform.pos
         self.rot = transform.rot
         self.fov = transform.fov
+
+    def lookat(self, height, lastTransform):
+        theta = atan2(self.pos.z, self.pos.x)
+        theta = -int(degrees(theta))+270
+        r = sqrt(self.pos.x**2+self.pos.z**2)
+        angle = int(degrees(atan2(self.pos.y-height, r)))
+        self.rot.x = angle
+        self.rot.y = theta
+        self.rot.z = lastTransform.rot.z
 
     def __str__(self) -> str:
         return(f'POS:{self.pos}, ROT:{self.rot}, FOV:{self.fov}')

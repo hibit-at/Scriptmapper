@@ -389,7 +389,7 @@ if os.path.exists(not_wip_folder):
     json.dump(data, open(not_wip_target, 'w'), indent=4)
     print_log(not_wip_target)
 
-target_path = os.path.join(path_dir, 'SongScript.json')
+target_path = os.path.join(path_dir, 'SongScript_ver1.json')
 print_log(target_path)
 json.dump(data, open(target_path, 'w'), indent=4)
 
