@@ -81,6 +81,7 @@ def sequential(self, transform, text, under_split) -> None:
                     transform.pos.z = param
                 if i == 3:
                     transform.fov = param
+            transform.lookat(self.height, self.lastTransform)
         elif text[0] == 'q':
             for i, a in enumerate(after_under):
                 param = float(a)
@@ -112,16 +113,14 @@ def orig_command(self, key, transform):
         fov = self.fov
     else:
         fov = float(manu['fov'])
+    transform.pos = pos
+    transform.fov = fov
     if manu['lookat'].lower() == 'true':
         self.logger.log('オリジナルコマンドの lookat が true になっているため、角度を自動計算します')
-        theta = atan2(pos.z, pos.x)
-        theta = -int(degrees(theta))+270
-        r = sqrt(pos.x**2+pos.z**2)
-        angle = int(degrees(atan2(pos.y-self.height, r)))
-        rot = Rot(angle, theta, self.lastTransform.rot.z)
+        transform.lookat(self.height, self.lastTransform)
     else:
         rot = Rot(float(manu['rx']), float(manu['ry']), float(manu['rz']))
-    transform.set(Transform(pos, rot, fov))
+        transform.rot = rot
 
 
 def rotate(self, text, dur):
