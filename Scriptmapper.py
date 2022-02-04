@@ -214,6 +214,20 @@ else:
 raw_b.append({'_time': dummyend_grid, 'text': 'dummyend'})
 print_log(f'ダミーエンドをグリッド {dummyend_grid} に設定。')
 
+# bpmchangeの抽出
+
+customData = j['_customData']
+bpmChanges = customData['_BPMChanges']
+bpmChangePoints = []
+for b in bpmChanges:
+    bpmChangePoints.append({
+        'bpm': b['_BPM'],
+        'factor': b['_BPM']/bpm,
+        'time': b['_time'],
+    })
+print(bpmChangePoints)
+
+
 # ダミーエンドを追加
 scripts = []
 size = len(raw_b)
