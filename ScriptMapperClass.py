@@ -2,6 +2,8 @@ import os
 import csv
 import json
 import pathlib
+import shutil
+import datetime
 from random import seed
 
 from BasicElements import Bookmark, Line, Transform, VisibleObject, Logger
@@ -183,13 +185,10 @@ class ScriptMapper:
             self.logger.log(f'easeTransition : {ease_command}')
             if ease_command != 'False':
                 ease(self, dur, ease_command, new_line)
-                # data['Movements'].extend(new_lines)
-                # print_log(log_text)
-                pass
             else:
                 self.lines.append(new_line)
-            self.logger.log(f'start {new_line.start}')
-            self.logger.log(f'end {new_line.end}')
+                self.logger.log(f'start {new_line.start}')
+                self.logger.log(f'end {new_line.end}')
 
     def render_json(self):
         template = {}
@@ -211,7 +210,7 @@ class ScriptMapper:
             movement['EndPos'] = {'x': line.end.pos.x,
                                   'y': line.end.pos.y,
                                   'z': line.end.pos.z,
-                                  'FOV': line.start.fov}
+                                  'FOV': line.end.fov}
             movement['EndRot'] = {'x': line.end.rot.x,
                                   'y': line.end.rot.y,
                                   'z': line.end.rot.z}
@@ -231,7 +230,7 @@ class ScriptMapper:
             #     'notes': line.visibleObject.notes,
             #     'debris': line.visibleObject.debris,
             # }
-            movement['EaseTransition'] = True
+            movement['EaseTransition'] = False
             template['Movements'].append(movement)
         self.output = template
         self.logger.log('\nソフト内部でのjsonデータの作成に成功しました。\n')
@@ -250,3 +249,12 @@ class ScriptMapper:
         self.logger.log(target_path)
         json.dump(self.output, open(target_path, 'w'), indent=4)
         self.logger.log('\nファイルの書き出しを正常に完了しました。')
+
+        # ログファイルをlogsに複製
+        log_path = os.path.join(path_dir, 'log_latest.txt')
+        now = str(datetime.datetime.now()).replace(':', '_')[:19]
+        log_folder_path = os.path.join(path_dir, 'logs')
+        if not os.path.exists(log_folder_path):
+            os.mkdir(log_folder_path)
+        copy_path = os.path.join(log_folder_path, f'log_{now}.txt')
+        shutil.copyfile(log_path, copy_path)

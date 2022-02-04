@@ -244,6 +244,7 @@ def ease(self, dur, text, line):
         )
         fov = interpolate(iFOV, lFOV, rate)
         new_line.end = Transform(endPos, endRot, fov)
-        self.logger.log(new_line.start)
+        self.logger.log('start', new_line.start)
+        self.logger.log('  end', new_line.start)
         self.lines.append(new_line)
         self.lastTransform = new_line.end
