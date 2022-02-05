@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 from math import degrees, sqrt, atan2
+from collections import deque
 
 
 class Bookmark:
@@ -65,21 +66,9 @@ class Transform:
         return(f'POS:{self.pos}, ROT:{self.rot}, FOV:{self.fov}')
 
 
-class VisibleObject:
-
-    def __init__(self):
-        self.avatar = True
-        self.ui = True
-        self.wall = True
-        self.wallFrame = True
-        self.saber = True
-        self.notes = True
-        self.debris = True
-
-
 class Line:
 
-    def __init__(self, duration=0):
+    def __init__(self, duration=0, visibleQueue=deque()):
         self.start = Transform()
         self.end = Transform()
         self.duration = duration
@@ -87,10 +76,12 @@ class Line:
         self.turnToHeadHorizontal = False
         self.startHeadOffset = Pos()
         self.endHeadOffset = Pos()
-        self.visibleObject = VisibleObject()
+        self.visibleObject = []
+        while visibleQueue:
+            self.visibleObject.append(visibleQueue.popleft())
 
     def __str__(self) -> str:
-        return (f'{self.duration:6.2f} {self.start} {self.end} ')
+        return (f'{self.duration:6.2f} {self.start} {self.end}')
 
 
 class Logger:
@@ -108,17 +99,3 @@ class Logger:
         print(text)
         f = open(self.log_path, 'a', encoding='utf-8')
         f.write(text+'\n')
-
-
-def format_time(sum_time) -> str:
-    min = int(sum_time // 60)
-    sec = int(sum_time % 60)
-    mili = sum_time % 1
-    if mili > 0.999:
-        mili = 0
-        sec += 1
-        if sec == 60:
-            sec = 0
-            min += 1
-    mili *= 1000
-    return f'{min} m {sec:2.0f} s {mili:4.0f}'

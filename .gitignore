@@ -1,5 +1,5 @@
-Scriptmapper.spec
 __pycache__
 dist
 build
 .vscode
+*.spec

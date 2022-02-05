@@ -5,8 +5,9 @@ import pathlib
 import shutil
 import datetime
 from random import seed
+from collections import deque
 
-from BasicElements import Bookmark, Line, Transform, VisibleObject, Logger
+from BasicElements import Bookmark, Line, Transform, Logger
 from GeneralUtils import format_time, manual_process
 from BookmarkUtils import copy_process, fill_process, raw_process
 from CommandUtils import env_command, long_command, parse_command
@@ -23,11 +24,12 @@ class ScriptMapper:
         # env
         self.bpm = 0
         self.fov = 60
-        self.seed = seed(0)
+        self.seed = seed
+        self.seed(0)
         self.height = 1.5
         self.turnToHead = False
         self.turnToHeadHorizontal = False
-        self.visible = VisibleObject()
+        self.visible = deque()
         # bookmarks
         self.dummyend_grid = 0
         self.raw_b = []
@@ -157,7 +159,7 @@ class ScriptMapper:
             self.logger.log(f'grid : {b.grid:6.2f} ({format_time(sum_time)})')
             self.logger.log(f'duration : {dur:.2f}')
             sum_time += dur
-            # long command -> process -> skip
+            # if long command -> process -> skip
             if long_command(self, text, dur):
                 continue
             # normal command
@@ -167,7 +169,7 @@ class ScriptMapper:
                 parse.append('False')
             elif len(parse) == 2:
                 parse.append('False')
-            new_line = Line(dur)
+            new_line = Line(dur, self.visible)
             new_line.turnToHead = self.turnToHead
             new_line.turnToHeadHorizontal = self.turnToHeadHorizontal
             # start
@@ -221,16 +223,14 @@ class ScriptMapper:
             movement['TurnToHeadHorizontal'] = line.turnToHeadHorizontal
             movement['Duration'] = line.duration
             movement['Delay'] = 0
-            # movement['VisibleObject'] = {
-            #     'avatar': line.visibleObject.avatar,
-            #     'ui': line.visibleObject.ui,
-            #     'wall': line.visibleObject.wall,
-            #     'wallFrame': line.visibleObject.wallFrame,
-            #     'saber': line.visibleObject.saber,
-            #     'notes': line.visibleObject.notes,
-            #     'debris': line.visibleObject.debris,
-            # }
             movement['EaseTransition'] = False
+            # if visibleObject exist in Line class, add bool in movement
+            for visible in line.visibleObject:
+                if 'VisibleObject' not in movement:
+                    movement['VisibleObject'] = {}
+                target = visible['target']
+                state = visible['state']
+                movement['VisibleObject'][target] = state
             template['Movements'].append(movement)
         self.output = template
         self.logger.log('\nソフト内部でのjsonデータの作成に成功しました。\n')
@@ -249,8 +249,7 @@ class ScriptMapper:
         self.logger.log(target_path)
         json.dump(self.output, open(target_path, 'w'), indent=4)
         self.logger.log('\nファイルの書き出しを正常に完了しました。')
-
-        # ログファイルをlogsに複製
+        # create log history
         log_path = os.path.join(path_dir, 'log_latest.txt')
         now = str(datetime.datetime.now()).replace(':', '_')[:19]
         log_folder_path = os.path.join(path_dir, 'logs')

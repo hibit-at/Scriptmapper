@@ -5,11 +5,37 @@ from BasicElements import Pos, Rot, Line, Transform
 
 # Reference: https://easings.net/
 
-easetypes = ['InSine', 'OutSine', 'InOutSine', 'InCubic','OutCubic', 'InOutCubic',
-             'InQuint', 'OutQuint', 'InOutQuint', 'InCirc', 'OutCirc', 'InOutCirc',
-             'InElastic', 'OutElastic', 'InOutElastic', 'InQuad', 'OutQuad', 'InOutQuad',
-             'InQuart', 'OutQuart', 'InOutQuart', 'InExpo', 'OutExpo', 'InOutExpo',
-             'InBack', 'OutBack', 'InOutBack', 'InBounce', 'OutBounce', 'InOutBounce']
+easetypes = ['InSine',
+             'OutSine',
+             'InOutSine',
+             'InCubic',
+             'OutCubic',
+             'InOutCubic',
+             'InQuint',
+             'OutQuint',
+             'InOutQuint',
+             'InCirc',
+             'OutCirc',
+             'InOutCirc',
+             'InElastic',
+             'OutElastic',
+             'InOutElastic',
+             'InQuad',
+             'OutQuad',
+             'InOutQuad',
+             'InQuart',
+             'OutQuart',
+             'InOutQuart',
+             'InExpo',
+             'OutExpo',
+             'InOutExpo',
+             'InBack',
+             'OutBack',
+             'InOutBack',
+             'InBounce',
+             'OutBounce',
+             'InOutBounce'
+             ]
 
 
 def InSine(t):
@@ -199,14 +225,15 @@ def ease(self, dur, text, line):
                 break
     if flag == 0:
         if u_text.startswith('EASE'):
-            self.logger.log(f'easeコマンドを検出\n')
-            self.logger.log(
-                f'有効なeasing関数名が指定されていないため、\easeInOutCubic(CameraPlusデフォルト)を返します')
+            self.logger.log(f'easeコマンドを検出')
+            self.logger.log(f'有効なeasing関数名が指定されていないため、easeInOutCubic（CameraPlus デフォルト）を返します')
             easefunc = InOutCubic
         else:
-            self.logger.log(f'! 有効なeaseコマンドを検出できません !\n')
+            self.logger.log(f'! 有効なeaseコマンドを検出できません !')
             self.logger.log(f'EaseTransition: False としますが、意図しない演出になっています。')
             self.lines.append(line)
+            self.logger.log(line.start)
+            self.logger.log(line.end)
             return
     span = max(1/30, dur/36)
     spans = []
@@ -244,7 +271,6 @@ def ease(self, dur, text, line):
         )
         fov = interpolate(iFOV, lFOV, rate)
         new_line.end = Transform(endPos, endRot, fov)
-        self.logger.log('start', new_line.start)
-        self.logger.log('  end', new_line.start)
+        self.logger.log(new_line.start)
         self.lines.append(new_line)
         self.lastTransform = new_line.end
