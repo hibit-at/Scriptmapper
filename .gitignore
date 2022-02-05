@@ -1,5 +1,13 @@
+<<<<<<< HEAD
 __pycache__
 dist
 build
 .vscode
 *.spec
+=======
+Scriptmapper.spec
+__pycache__
+dist
+build
+.vscode
+>>>>>>> 39af7119e79435a9c4d8df114e08be8218d11655
