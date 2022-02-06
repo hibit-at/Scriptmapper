@@ -20,3 +20,17 @@ def manual_process(self, data) -> None:
         self.manual[d['label']] = d
         self.logger.log(d)
     self.logger.log('')
+
+
+def get_param(self, text, length, def_value) -> float:
+    param = def_value
+    if len(text) > length:
+        param_word = text[length:]
+        check = any([c.isalpha() for c in param_word])
+        if check:
+            self.logger.log(f'パラメータ {param_word} に英字を確認。' +
+                            f'セキュリティの問題上、プログラムを強制終了します。')
+            input()
+            exit()
+        param = eval(param_word)
+    return param

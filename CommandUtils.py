@@ -1,6 +1,7 @@
 from BasicElements import Pos, Rot
-from LongCommands import rotate, vibro
-from PresetCommands import generate
+from LongCommandsUtils import rotate, vibro
+from PresetCommandsUtils import generate
+from GeneralUtils import get_param
 
 
 commands = {
@@ -22,20 +23,6 @@ commands = {
     'dpos': '-',
     'q': '-',
 }
-
-
-def get_param(self, text, length, def_value) -> float:
-    param = def_value
-    if len(text) > length:
-        param_word = text[length:]
-        check = any([c.isalpha() for c in param_word])
-        if check:
-            self.logger.log(f'パラメータ {param_word} に英字を確認。' +
-                            f'セキュリティの問題上、プログラムを強制終了します。')
-            input()
-            exit()
-        param = eval(param_word)
-    return param
 
 
 def adjust(self, transform, dollar_split) -> None:
@@ -167,51 +154,3 @@ def parse_command(self, transform, text) -> None:
     self.logger.log(f'! スクリプト {text} はコマンドに変換できません !')
     self.logger.log('直前の座標を返しますが、意図しない演出になっています。')
     transform.set(self.lastTransform)
-
-
-def env_command(self, text) -> None:
-    if text[:3] == 'fov':
-        param = get_param(self, text, 3, 60)
-        self.logger.log('fov コマンドを検出。FOVを以下の値にします。 : ', param)
-        self.fov = param
-        return
-    if text[:4] == 'seed':
-        param = get_param(self, text, 4, 0)
-        self.logger.log('seed コマンドを検出。ランダムシードを以下の値にします。 : ', param)
-        self.seed(param)
-        self.lastTransform = generate(self, 'center', -2)
-        return
-    if text[:4] == 'head':
-        self.logger.log('head コマンドを検出。HMD追従モードを切り替えます。',
-                        self.turnToHead, '->', not self.turnToHead)
-        self.turnToHead = not self.turnToHead
-        return
-    if text[:7] == 'horizo':
-        self.logger.log('horizo コマンドを検出。HMD追従モードを切り替えます。',
-                        self.turnToHeadHorizontal, '->', not self.turnToHeadHorizontal)
-        self.turnToHeadHorizontal = not self.turnToHeadHorizontal
-        return
-    if text[:6] == 'height':
-        param = get_param(self, text, 6, 1.5)
-        self.logger.log('height コマンドを検出。アバターの視点を以下の値にします。 : ', param)
-        self.height = param
-        return
-    visibleObjects = ['avatar', 'ui', 'wall',
-                      'wallFrame', 'saber', 'notes', 'debris']
-    for visibleObject in visibleObjects:
-        leng = len(visibleObject)
-        if text[:leng] == visibleObject:
-            self.logger.log(f'{visibleObject} コマンドを検出。')
-            param = text[leng:]
-            if param.upper() == 'ON':
-                self.visible.append({'target': visibleObject, 'state': True})
-                self.logger.log(
-                    f'パラメータは ON です。次のコマンドで、{visibleObject} を ON にします。')
-            elif param.upper() == 'OFF':
-                self.visible.append({'target': visibleObject, 'state': False})
-                self.logger.log(
-                    f'パラメータは OFF です。次のコマンドで、{visibleObject} を OFF にします。')
-            else:
-                self.logger.log('パラメータを検出できません。')
-            return
-    self.logger.log('! 有効な環境コマンドを検出できません !')

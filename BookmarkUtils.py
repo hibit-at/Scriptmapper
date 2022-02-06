@@ -2,6 +2,18 @@ from BasicElements import Bookmark
 from random import random
 
 
+def raw_process(self, b):
+    if b['_name'] == '':
+        self.logger.log(
+            f'{b["_time"]} 空白のブックマークを検出。デフォルト値として stop を代入します。')
+        b['_name'] = 'stop'
+    # start check
+    if b['_time'] <= 1:
+        self.logger.log('スタートから 1 グリッド以内のブックマークはスタート地点にセットします')
+        b['_time'] = 0
+    self.raw_b.append(Bookmark(b['_time'], b['_name'], 0))
+
+
 def fill_process(self, i):
     text = self.raw_b[i].text
     start_grid = self.raw_b[i].grid
@@ -66,11 +78,3 @@ def copy_process(self, i):
                 self.logger.log(f'{t_grid} -> {append_grid} {t_text}')
     else:
         self.copied_b.append(self.filled_b[i])
-
-
-def raw_process(self, b):
-    if b['_name'] == '':
-        self.logger.log(
-            f'{b["_time"]} 空白のブックマークを検出。デフォルト値として center-2 を代入します。')
-        b['_name'] = 'center-2'
-    self.raw_b.append(Bookmark(b['_time'], b['_name'], 0))

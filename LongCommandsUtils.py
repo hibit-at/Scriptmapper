@@ -32,7 +32,7 @@ def rotate(self, text, dur):
         dur -= min_span
     span_size = len(spans)
     for i in range(span_size):
-        new_line = Line(spans[i], self.visible)
+        new_line = Line(spans[i], self.visibleObject.state)
         theta = 2*pi*i/span_size - 1/2*pi
         next_theta = 2*pi*(i+1)/span_size - 1/2*pi
         angle = atan2(h-a, r)
@@ -64,7 +64,7 @@ def vibro(self, dur, param):
         span *= (0.9 + random()*0.2)
     ans = []
     for step in steps:
-        new_line = Line(step, self.visible)
+        new_line = Line(step, self.visibleObject.state)
         new_line.start = deepcopy(self.lastTransform)
         new_line.end = deepcopy(self.lastTransform)
         dx = round(random()/6, 3)-1/12

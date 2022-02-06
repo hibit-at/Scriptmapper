@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 from datetime import datetime
 from math import degrees, sqrt, atan2
@@ -12,6 +13,23 @@ class Bookmark:
 
     def __str__(self) -> str:
         return (f'{self.grid}:{self.text} dur:{self.duration}')
+
+
+class VisibleObject:
+
+    def __init__(self):
+        self.state = {
+            'avatar': True,
+            'ui': True,
+            'wall': True,
+            'wallFrame': True,
+            'saber': True,
+            'notes': True,
+            'debris': True,
+        }
+
+    def __str__(self) -> str:
+        return(str(self.state))
 
 
 class Pos:
@@ -68,7 +86,7 @@ class Transform:
 
 class Line:
 
-    def __init__(self, duration=0, visibleQueue=deque()):
+    def __init__(self, duration, VisibleDict):
         self.start = Transform()
         self.end = Transform()
         self.duration = duration
@@ -76,9 +94,7 @@ class Line:
         self.turnToHeadHorizontal = False
         self.startHeadOffset = Pos()
         self.endHeadOffset = Pos()
-        self.visibleObject = []
-        while visibleQueue:
-            self.visibleObject.append(visibleQueue.popleft())
+        self.visibleDict = deepcopy(VisibleDict)
 
     def __str__(self) -> str:
         return (f'{self.duration:6.2f} {self.start} {self.end}')

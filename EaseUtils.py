@@ -226,7 +226,8 @@ def ease(self, dur, text, line):
     if flag == 0:
         if u_text.startswith('EASE'):
             self.logger.log(f'easeコマンドを検出')
-            self.logger.log(f'有効なeasing関数名が指定されていないため、easeInOutCubic（CameraPlus デフォルト）を返します')
+            self.logger.log(
+                f'有効なeasing関数名が指定されていないため、easeInOutCubic（CameraPlus デフォルト）を返します')
             easefunc = InOutCubic
         else:
             self.logger.log(f'! 有効なeaseコマンドを検出できません !')
@@ -255,7 +256,7 @@ def ease(self, dur, text, line):
 
     self.lastTransform = line.start
     for i in range(span_size):
-        new_line = Line(spans[i], self.visible)
+        new_line = Line(spans[i], self.visibleObject.state)
         t = sum(spans[:(i+1)])/init_dur
         rate = easefunc(t)
         new_line.start = deepcopy(self.lastTransform)

@@ -5,12 +5,13 @@ import pathlib
 import shutil
 import datetime
 from random import seed
-from collections import deque
+from math import ceil
 
-from BasicElements import Bookmark, Line, Transform, Logger
+from BasicElements import Bookmark, Line, Transform, Logger, VisibleObject
 from GeneralUtils import format_time, manual_process
 from BookmarkUtils import copy_process, fill_process, raw_process
-from CommandUtils import env_command, long_command, parse_command
+from CommandUtils import long_command, parse_command
+from EnvCommandUtils import env_command
 from EaseUtils import ease
 
 
@@ -23,13 +24,14 @@ class ScriptMapper:
         self.manual = {}
         # env
         self.bpm = 0
+        self.bpmchanges = []
         self.fov = 60
         self.seed = seed
         self.seed(0)
         self.height = 1.5
         self.turnToHead = False
         self.turnToHeadHorizontal = False
-        self.visible = deque()
+        self.visibleObject = VisibleObject()
         # bookmarks
         self.dummyend_grid = 0
         self.raw_b = []
@@ -68,6 +70,15 @@ class ScriptMapper:
         bpm = j['_beatsPerMinute']
         self.bpm = bpm
         self.logger.log(f'bpmを計測 {self.bpm} \n')
+        f = open(self.file_path, 'rb')
+        j = json.load(f)
+        bpmChanges = j['_customData']['_BPMChanges']
+        print(bpmChanges)
+        for b in bpmChanges:
+            self.bpmchanges.append({
+                'time': b['_time'] * 60 / bpm,
+                'bpm': b['_BPM'],
+                'perbar': b['_beatsPerBar']})
 
     def make_manual_commands(self):
         path_dir = self.path_obj.parent
@@ -106,13 +117,13 @@ class ScriptMapper:
         size = len(self.raw_b)
         for i in range(size-1):
             fill_process(self, i)
-        self.filled_b.append(Bookmark(self.dummyend_grid, 'dummy'))
+        self.filled_b.append(Bookmark(self.dummyend_grid, 'stop'))
 
     def make_copied_b(self):
         size = len(self.filled_b)
         for i in range(size-1):
             copy_process(self, i)
-        self.copied_b.append(Bookmark(self.dummyend_grid, 'dummy'))
+        self.copied_b.append(Bookmark(self.dummyend_grid, 'stop'))
 
     def calc_duration(self):
         command_b = []
@@ -133,13 +144,29 @@ class ScriptMapper:
         cnt = 1
         sum_time = 0
         for b in self.copied_b:
+            grid = b.grid
+            virtual_time = grid * 60 / self.bpm
+            virtual_grid = 0
+            span_end = 0
+            current_bpm = self.bpm
+            for change in self.bpmchanges:
+                span = change['time'] - span_end
+                span_end = change['time']
+                if span > virtual_time:
+                    break
+                interval = 60 / current_bpm
+                virtual_grid += ceil((span / interval) - 0.001)
+                virtual_time -= span
+                current_bpm = change['bpm']
+            interval = 60 / current_bpm
+            virtual_grid += virtual_time / 60 * current_bpm
             if b.text[0] == "#":
                 self.logger.log(f'    env',
-                                f'{b.grid:6.2f}             : {b.text}')
+                                f'{virtual_grid:6.2f}             : {b.text}')
             else:
                 self.logger.log(
                     f'{str(cnt).rjust(3)}番目',
-                    f'{b.grid:6.2f} ({format_time(sum_time)}) : {b.text}')
+                    f'{virtual_grid:6.2f} ({format_time(sum_time)}) : {b.text}')
                 cnt += 1
             sum_time += b.duration
 
@@ -169,7 +196,7 @@ class ScriptMapper:
                 parse.append('False')
             elif len(parse) == 2:
                 parse.append('False')
-            new_line = Line(dur, self.visible)
+            new_line = Line(dur, self.visibleObject.state)
             new_line.turnToHead = self.turnToHead
             new_line.turnToHeadHorizontal = self.turnToHeadHorizontal
             # start
@@ -224,13 +251,9 @@ class ScriptMapper:
             movement['Duration'] = line.duration
             movement['Delay'] = 0
             movement['EaseTransition'] = False
-            # if visibleObject exist in Line class, add bool in movement
-            for visible in line.visibleObject:
-                if 'VisibleObject' not in movement:
-                    movement['VisibleObject'] = {}
-                target = visible['target']
-                state = visible['state']
-                movement['VisibleObject'][target] = state
+            movement['VisibleObject'] = {}
+            for key, value in line.visibleDict.items():
+                movement['VisibleObject'][key] = value
             template['Movements'].append(movement)
         self.output = template
         self.logger.log('\nソフト内部でのjsonデータの作成に成功しました。\n')
