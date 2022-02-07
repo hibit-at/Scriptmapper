@@ -72,8 +72,9 @@ class ScriptMapper:
         self.logger.log(f'bpmを計測 {self.bpm} \n')
         f = open(self.file_path, 'rb')
         j = json.load(f)
+        if '_BPMChanges' not in j['_customData']:
+            return
         bpmChanges = j['_customData']['_BPMChanges']
-        print(bpmChanges)
         for b in bpmChanges:
             self.bpmchanges.append({
                 'time': b['_time'] * 60 / bpm,
