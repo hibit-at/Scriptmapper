@@ -78,7 +78,7 @@ class Transform:
         angle = int(degrees(atan2(self.pos.y-height, r)))
         self.rot.x = angle
         self.rot.y = theta
-        self.rot.z = lastTransform.rot.z
+        self.rot.z = 0
 
     def __str__(self) -> str:
         return(f'POS:{self.pos}, ROT:{self.rot}, FOV:{self.fov}')
