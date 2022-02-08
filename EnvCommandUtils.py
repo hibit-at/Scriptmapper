@@ -30,7 +30,25 @@ def env_command(self, text) -> None:
         self.logger.log('height コマンドを検出。アバターの視点を以下の値にします。 : ', param)
         self.height = param
         return
-    visibleObjects = ['avatar', 'ui', 'wallFrame',  'wall', 'saber', 'notes', 'debris']
+    if text[:3] == 'def':
+        param = text[3:]
+        if param[0] == ',' or param[0] == ' ':
+            param = param[1:]
+        self.logger.log(f'def コマンドを検出。現在の位置・角度をオリジナルコマンド {param} とします。')
+        add_command = {}
+        add_command['px'] = self.lastTransform.pos.x
+        add_command['py'] = self.lastTransform.pos.y
+        add_command['pz'] = self.lastTransform.pos.z
+        add_command['rx'] = self.lastTransform.rot.x
+        add_command['ry'] = self.lastTransform.rot.y
+        add_command['rz'] = self.lastTransform.rot.z
+        add_command['fov'] = self.lastTransform.fov
+        add_command['lookat'] = 'false'
+        self.manual[param] = add_command
+        self.logger.log(add_command)
+        return
+    visibleObjects = ['avatar', 'ui', 'wallFrame',
+                      'wall', 'saber', 'notes', 'debris']
     for visibleObject in visibleObjects:
         leng = len(visibleObject)
         if text[:leng] == visibleObject:

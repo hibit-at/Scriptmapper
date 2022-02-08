@@ -17,6 +17,11 @@ def manual_process(self, data) -> None:
         if 'fov' not in d:
             d['fov'] = 'env'
             self.logger.log('オリジナルコマンドにfovが設定されていないため、環境FOVを引き継ぎます。')
+        try:
+            float(d['fov'])
+        except ValueError:
+            self.logger.log('fov に数値以外が入力されているため、環境FOVを引き継ぎます。')
+            d['fov'] = 'env'
         self.manual[d['label']] = d
         self.logger.log(d)
     self.logger.log('')

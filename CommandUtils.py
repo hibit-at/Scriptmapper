@@ -92,13 +92,14 @@ def orig_command(self, key, transform):
     manu = self.manual[key]
     print(manu)
     pos = Pos(float(manu['px']), float(manu['py']), float(manu['pz']))
-    if manu['fov'].lower() == 'env':
+    if manu['fov'] == 'env':
         self.logger.log('オリジナルコマンドの fov が env になっているため、環境fovを引き継ぎます。')
         fov = self.fov
     else:
         fov = float(manu['fov'])
     transform.pos = pos
     transform.fov = fov
+    print(manu)
     if manu['lookat'].lower() == 'true':
         self.logger.log('オリジナルコマンドの lookat が true になっているため、角度を自動計算します')
         transform.lookat(self.height, self.lastTransform)
