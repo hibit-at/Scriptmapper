@@ -1,8 +1,6 @@
-from copy import deepcopy
 import os
 from datetime import datetime
 from math import degrees, sqrt, atan2
-from collections import deque
 
 
 class Bookmark:
@@ -86,7 +84,7 @@ class Transform:
 
 class Line:
 
-    def __init__(self, duration, VisibleDict):
+    def __init__(self, duration):
         self.start = Transform()
         self.end = Transform()
         self.duration = duration
@@ -94,7 +92,9 @@ class Line:
         self.turnToHeadHorizontal = False
         self.startHeadOffset = Pos()
         self.endHeadOffset = Pos()
-        self.visibleDict = deepcopy(VisibleDict)
+        self.visibleDict = None
+        self.isNext = False
+        self.ease = ''
 
     def __str__(self) -> str:
         return (f'{self.duration:6.2f} {self.start} {self.end}')

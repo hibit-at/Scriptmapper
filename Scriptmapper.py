@@ -33,6 +33,10 @@ def mapping(file_path):
     # ブックマークをパース
     mapper.parse_bookmarks()
 
+    mapper.next_calc()
+
+    mapper.ease_calc()
+
     # レンダリング
     mapper.render_json()
 

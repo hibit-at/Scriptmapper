@@ -253,10 +253,11 @@ def ease(self, dur, text, line):
     lzr = izr + (lzr - izr + 180) % 360 - 180
     iFOV = line.start.fov
     lFOV = line.end.fov
-
+    
     self.lastTransform = line.start
     for i in range(span_size):
-        new_line = Line(spans[i], self.visibleObject.state)
+        new_line = Line(spans[i])
+        new_line.visibleDict = deepcopy(self.visibleObject.state)
         t = sum(spans[:(i+1)])/init_dur
         rate = easefunc(t)
         new_line.start = deepcopy(self.lastTransform)

@@ -3,10 +3,16 @@ from random import random
 
 
 def raw_process(self, b):
+    # blanck check
     if b['_name'] == '':
         self.logger.log(
             f'{b["_time"]} 空白のブックマークを検出。デフォルト値として stop を代入します。')
         b['_name'] = 'stop'
+    # -> check
+    if '->' in b['_name']:
+        self.logger.log(
+            f'補助コマンド「->」を確認。「stop,」を代入します。')
+        b['_name'] = b['_name'].replace('->','stop,')
     # start check
     if b['_time'] <= 1:
         self.logger.log('スタートから 1 グリッド以内のブックマークはスタート地点にセットします')
@@ -18,7 +24,6 @@ def fill_process(self, i):
     text = self.raw_b[i].text
     start_grid = self.raw_b[i].grid
     if i == 0 and start_grid != 0:
-        # ans.append({'time': 0, 'text': 'center-2'})
         self.filled_b.append(Bookmark(0, 'center-2'))
         self.logger.log(
             '開始位置（グリッド0）にブックマークがないため、スクリプト center-2 を挿入しました。')

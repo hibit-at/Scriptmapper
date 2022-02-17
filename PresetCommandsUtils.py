@@ -131,7 +131,6 @@ def generate(self, text, r) -> Transform:
 
     # turn
     if text == 'turn':
-        # pos, rot = deepcopy(last_pos_rot)
         transform = deepcopy(self.lastTransform)
         px = transform.pos.x
         pz = transform.pos.z

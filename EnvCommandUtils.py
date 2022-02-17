@@ -1,4 +1,3 @@
-from BasicElements import Transform, Pos, Rot
 from GeneralUtils import get_param
 
 
@@ -13,7 +12,6 @@ def env_command(self, text) -> None:
         self.logger.log('seed コマンドを検出。ランダムシードを以下の値にします。 : ', param)
         self.seed(param)
         # center-2 as default
-        self.lastTransform = Transform(Pos(0, 2, -2), Rot(45, 0, 0), self.fov)
         return
     if text[:4] == 'head':
         self.logger.log('head コマンドを検出。HMD追従モードを切り替えます。',
@@ -27,7 +25,7 @@ def env_command(self, text) -> None:
         return
     if text[:6] == 'height':
         param = get_param(self, text, 6, 1.5)
-        self.logger.log('height コマンドを検出。アバターの視点を以下の値にします。 : ', param)
+        self.logger.log('height コマンドを検出。アバターの身長（目の高さ）を以下の値にします。 : ', param)
         self.height = param
         return
     if text[:3] == 'def':
@@ -47,6 +45,10 @@ def env_command(self, text) -> None:
         self.manual[param] = add_command
         self.logger.log(add_command)
         return
+    if text[:6] == 'offset':
+        param = get_param(self, text, 6, 0)
+        self.logger.log(f'offset コマンドを検出。次のコマンドのオフセット期間を {param} 秒短縮します。')
+        self.offset = param
     visibleObjects = ['avatar', 'ui', 'wallFrame',
                       'wall', 'saber', 'notes', 'debris']
     for visibleObject in visibleObjects:

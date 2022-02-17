@@ -135,6 +135,10 @@ def parse_command(self, transform, text) -> None:
     dollar_split = text.split('$')
     pre_dollar = dollar_split[0]
     # split_check
+    if pre_dollar[:4] == 'dpos' and pre_dollar[4] != '_':
+        pre_dollar = 'dpos_' + pre_dollar[4:]
+    if pre_dollar[:1] == 'q' and pre_dollar[1] != '_':
+        pre_dollar = 'q_' + pre_dollar[1:]
     under_split = pre_dollar.split('_')
     text = under_split[0]
     for key in self.manual.keys():

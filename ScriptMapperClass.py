@@ -1,3 +1,4 @@
+from copy import deepcopy
 import os
 import csv
 import json
@@ -7,7 +8,7 @@ import datetime
 from random import seed
 from math import ceil
 
-from BasicElements import Bookmark, Line, Transform, Logger, VisibleObject
+from BasicElements import Bookmark, Line, Transform, Logger, VisibleObject, Pos, Rot
 from GeneralUtils import format_time, manual_process
 from BookmarkUtils import copy_process, fill_process, raw_process
 from CommandUtils import long_command, parse_command
@@ -32,6 +33,7 @@ class ScriptMapper:
         self.turnToHead = False
         self.turnToHeadHorizontal = False
         self.visibleObject = VisibleObject()
+        self.offset = 0
         # bookmarks
         self.dummyend_grid = 0
         self.raw_b = []
@@ -40,6 +42,7 @@ class ScriptMapper:
         # lines
         self.lines = []
         self.lastTransform = Transform()
+        self.lastLine = None
         # output
         self.output = None
 
@@ -197,7 +200,13 @@ class ScriptMapper:
                 parse.append('False')
             elif len(parse) == 2:
                 parse.append('False')
-            new_line = Line(dur, self.visibleObject.state)
+            # new_line = Line(dur, self.visibleObject.state)
+            new_line = Line(dur)
+            if self.offset > 0:
+                new_line.duration = max(0, new_line.duration - self.offset)
+                self.logger.log(f'offset コマンドにより、この箇所は {dur} 秒短縮されます。')
+                self.offset = 0
+            new_line.visibleDict = deepcopy(self.visibleObject.state)
             new_line.turnToHead = self.turnToHead
             new_line.turnToHeadHorizontal = self.turnToHeadHorizontal
             # start
@@ -207,18 +216,45 @@ class ScriptMapper:
             self.lastTransform = new_line.start
             # end
             end_command = parse[1]
-            self.logger.log(f'end : {end_command}')
-            parse_command(self, new_line.end, end_command)
-            self.lastTransform = new_line.end
+            if end_command == 'next':
+                new_line.isNext = True
+                new_line.end = Transform(Pos(0, 0, 0), Rot(0, 0, 0), 0)
+                self.logger.log('next コマンドを検出。次のスクリプトの開始位置に合わせます。')
+                self.logger.log('全スクリプトを変換後再計算するため、下のログには仮パラメータが出力されます。')
+            else:
+                self.logger.log(f'end : {end_command}')
+                parse_command(self, new_line.end, end_command)
+                self.lastTransform = new_line.end
             # ease
             ease_command = parse[2]
             self.logger.log(f'easeTransition : {ease_command}')
             if ease_command != 'False':
-                ease(self, dur, ease_command, new_line)
+                # ease(self, dur, ease_command, new_line)
+                new_line.ease = ease_command
+                self.logger.log(f'（工事中）easeTransition に文字列を確認しましたが、イージングの処理は、next の後に行う必要があるため、後で再計算します。')
+                self.logger.log(f'ログを含めて後日修正。')
+            self.lines.append(new_line)
+            self.logger.log(f'start {new_line.start}')
+            self.logger.log(f'end {new_line.end}')
+
+    def next_calc(self):
+        lines = self.lines
+        size = len(lines)
+        for i in range(size-1):
+            line = lines[i]
+            if line.isNext:
+                next_line = lines[i+1]
+                line.end = next_line.start
+
+    def ease_calc(self):
+        self.logger.log('\nイージングの処理が臨時的にここにログに出されます。後で直します。')
+        original = deepcopy(self.lines)
+        self.lines = []
+        for org in original:
+            if org.ease != '':
+                ease(self, org.duration, org.ease, org)
             else:
-                self.lines.append(new_line)
-                self.logger.log(f'start {new_line.start}')
-                self.logger.log(f'end {new_line.end}')
+                self.lines.append(org)
 
     def render_json(self):
         template = {}
