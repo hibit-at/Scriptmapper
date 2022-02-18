@@ -75,14 +75,16 @@ class ScriptMapper:
         self.logger.log(f'bpmを計測 {self.bpm} \n')
         f = open(self.file_path, 'rb')
         j = json.load(f)
-        if '_BPMChanges' not in j['_customData']:
-            return
-        bpmChanges = j['_customData']['_BPMChanges']
-        for b in bpmChanges:
-            self.bpmchanges.append({
-                'time': b['_time'] * 60 / bpm,
-                'bpm': b['_BPM'],
-                'perbar': b['_beatsPerBar']})
+        if '_customData' in j:
+            if '_BPMChanges' not in j['_customData']:
+                return
+            else:
+                bpmChanges = j['_customData']['_BPMChanges']
+                for b in bpmChanges:
+                    self.bpmchanges.append({
+                        'time': b['_time'] * 60 / bpm,
+                        'bpm': b['_BPM'],
+                        'perbar': b['_beatsPerBar']})
 
     def make_manual_commands(self):
         path_dir = self.path_obj.parent

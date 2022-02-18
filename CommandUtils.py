@@ -100,12 +100,8 @@ def orig_command(self, key, transform):
     transform.pos = pos
     transform.fov = fov
     print(manu)
-    if manu['lookat'].lower() == 'true':
-        self.logger.log('オリジナルコマンドの lookat が true になっているため、角度を自動計算します')
-        transform.lookat(self.height, self.lastTransform)
-    else:
-        rot = Rot(float(manu['rx']), float(manu['ry']), float(manu['rz']))
-        transform.rot = rot
+    rot = Rot(float(manu['rx']), float(manu['ry']), float(manu['rz']))
+    transform.rot = rot
 
 
 def long_command(self, text, dur) -> bool:
