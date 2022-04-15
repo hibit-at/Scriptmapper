@@ -11,6 +11,8 @@ def rotate(self, text, dur):
     a = 1
     o = 1.0
     s = 0
+    j = 0
+    w = 360
     if len(text) > 6:
         param = [eval(i) for i in text[6:].split(',')]
         if len(param) > 0:
@@ -23,7 +25,11 @@ def rotate(self, text, dur):
             o = param[3]
         if len(param) > 4:
             s = param[4]
-    self.logger.log(f'パラメータ r:{r} h:{h} a:{a} o:{o} s:{s}')
+        if len(param) > 5:
+            j = param[5]
+        if len(param) > 6:
+            w = param[6]
+    self.logger.log(f'パラメータ r:{r} h:{h} a:{a} o:{o} s:{s} j:{j} w:{w}')
     span = max(1/30, dur/36)
     spans = []
     while dur > 0:
@@ -34,8 +40,8 @@ def rotate(self, text, dur):
     for i in range(span_size):
         new_line = Line(spans[i])
         new_line.visibleDict = deepcopy(self.visibleObject.state)
-        theta = 2*pi*i/span_size - 1/2*pi
-        next_theta = 2*pi*(i+1)/span_size - 1/2*pi
+        theta = 2*pi*i*(w/360)/span_size - 1/2*pi + j*2*pi/360
+        next_theta = 2*pi*(i+1)*(w/360)/span_size - 1/2*pi + j*2*pi/360
         angle = atan2(h-a, r)
         px = round(r*cos(theta), 3)
         pz = round(r*sin(theta)+o, 3)
