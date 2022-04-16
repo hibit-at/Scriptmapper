@@ -29,7 +29,15 @@ def rotate(self, text, dur):
             j = param[5]
         if len(param) > 6:
             w = param[6]
-    self.logger.log(f'パラメータ r:{r} h:{h} a:{a} o:{o} s:{s} j:{j} w:{w}')
+        if len(param) > 7:
+            h2 = param[7]
+        else:
+            h2 = h
+        if len(param) > 8:
+            s2 = param[8]
+        else:
+            s2 = s
+    self.logger.log(f'パラメータ r:{r} h:{h} a:{a} o:{o} s:{s} j:{j} w:{w} h2:{h2} s2:{s2}')
     span = max(1/30, dur/36)
     spans = []
     while dur > 0:
@@ -42,20 +50,21 @@ def rotate(self, text, dur):
         new_line.visibleDict = deepcopy(self.visibleObject.state)
         theta = 2*pi*i*(w/360)/span_size - 1/2*pi + j*2*pi/360
         next_theta = 2*pi*(i+1)*(w/360)/span_size - 1/2*pi + j*2*pi/360
-        angle = atan2(h-a, r)
+        angle = atan2(h+i*(h2-h)/span_size-a, r)
         px = round(r*cos(theta), 3)
         pz = round(r*sin(theta)+o, 3)
         rx = degrees(angle)
         ry = -degrees(theta)+270
-        new_line.start.pos = Pos(px, h, pz)
-        new_line.start.rot = Rot(rx, ry, s)
+        new_line.start.pos = Pos(px, h+i*(h2-h)/span_size, pz)
+        new_line.start.rot = Rot(rx, ry, s+i*(s2-s)/span_size)
         new_line.start.fov = self.fov
+        angle = atan2(h+(i+1)*(h2-h)/span_size-a, r)
         px = round(r*cos(next_theta), 3)
         pz = round(r*sin(next_theta)+o, 3)
         rx = degrees(angle)
         ry = -degrees(next_theta)+270
-        new_line.end.pos = Pos(px, h, pz)
-        new_line.end.rot = Rot(rx, ry, s)
+        new_line.end.pos = Pos(px, h+(i+1)*(h2-h)/span_size, pz)
+        new_line.end.rot = Rot(rx, ry, s+(i+1)*(s2-s)/span_size)
         new_line.end.fov = self.fov
         self.logger.log(new_line.start)
         self.lines.append(new_line)
