@@ -39,6 +39,9 @@ def mapping(file_path):
     # easeの処理
     mapper.ease_calc()
 
+    # rotの処理
+    mapper.rot_calc()
+
     # レンダリング
     mapper.render_json()
 
