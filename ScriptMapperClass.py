@@ -14,6 +14,7 @@ from BookmarkUtils import copy_process, fill_process, raw_process
 from CommandUtils import long_command, parse_command
 from EnvCommandUtils import env_command
 from EaseUtils import ease
+from LongCommandsUtils import rot
 
 
 class ScriptMapper:
@@ -227,14 +228,18 @@ class ScriptMapper:
                 self.logger.log(f'end : {end_command}')
                 parse_command(self, new_line.end, end_command)
                 self.lastTransform = new_line.end
-            # ease
-            ease_command = parse[2]
-            self.logger.log(f'easeTransition : {ease_command}')
-            if ease_command != 'False':
-                # ease(self, dur, ease_command, new_line)
-                new_line.ease = ease_command
-                self.logger.log(f'（工事中）easeTransition に文字列を確認しましたが、イージングの処理は、next の後に行う必要があるため、後で再計算します。')
-                self.logger.log(f'ログを含めて後日修正。')
+            # transition
+            transition_command = parse[2]
+            self.logger.log(f'transition : {transition_command}')
+            if transition_command != 'False':
+                if transition_command[:4].lower() == 'ease':
+                    # ease(self, dur, ease_command, new_line)
+                    new_line.ease = transition_command
+                    self.logger.log(f'（工事中）easeTransition に文字列を確認しましたが、イージングの処理は、next の後に行う必要があるため、後で再計算します。')
+                    self.logger.log(f'ログを含めて後日修正。')
+                if transition_command[:3].lower() == 'rot':
+                    new_line.rot = transition_command
+                    self.logger.log(f'（非公式機能）rot に文字列を確認しましたが、回転の処理は、next の後に行う必要があるため、後で再計算します。')
             self.lines.append(new_line)
             self.logger.log(f'start {new_line.start}')
             self.logger.log(f'end {new_line.end}')
@@ -255,6 +260,16 @@ class ScriptMapper:
         for org in original:
             if org.ease != '':
                 ease(self, org.duration, org.ease, org)
+            else:
+                self.lines.append(org)
+
+    def rot_calc(self):
+        self.logger.log('\n（非公式機能）rotの処理が臨時的にここにログに出されます。')
+        original = deepcopy(self.lines)
+        self.lines = []
+        for org in original:
+            if org.rot != '':
+                rot(self, org.duration, org.rot, org)
             else:
                 self.lines.append(org)
 
