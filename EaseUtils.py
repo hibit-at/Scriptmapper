@@ -257,7 +257,7 @@ def ease(self, dur, text, line):
     self.lastTransform = line.start
     for i in range(span_size):
         new_line = Line(spans[i])
-        new_line.visibleDict = deepcopy(self.visibleObject.state)
+        new_line.visibleDict = deepcopy(line.visibleDict)
         t = sum(spans[:(i+1)])/init_dur
         rate = easefunc(t)
         new_line.start = deepcopy(self.lastTransform)

@@ -1,3 +1,4 @@
+from cgi import print_arguments
 import sys
 from ScriptMapperClass import ScriptMapper
 
@@ -48,5 +49,9 @@ def mapping(file_path):
 
 if __name__ == "__main__":
     # ファイルパスの取得
+    if len(sys.argv) == 1:
+        print('Script Mapper は単独では開けません。譜面の dat ファイルをドラッグ＆ドロップしてください。')
+        input()
+        exit()
     file_path = sys.argv[1]
     mapping(file_path)
