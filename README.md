@@ -1,6 +1,6 @@
 # 非公式Script Mapper
 
-[ダウンロード](https://github.com/rei05/Scriptmapper/releases)
+[ダウンロード](https://github.com/rei05/Scriptmapper/releases/latest)
 
 [公式版Script Mapper](https://github.com/hibit-at/Scriptmapper)を機能拡張したものです。基本的な使い方は公式版と同じです。
 
