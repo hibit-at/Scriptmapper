@@ -109,9 +109,15 @@ def rot(self, dur, text, line):
     itheta = atan2(izp, ixp)%(2*pi)
     ltheta = atan2(lzp, lxp)%(2*pi)
     if n > 0:
-        dtheta = ltheta-itheta + 2*pi*(n-1)
+        if ltheta > itheta:
+            dtheta = ltheta-itheta + 2*pi*(n-1)
+        else:
+            dtheta = ltheta-itheta + 2*pi*n
     elif n < 0:
-        dtheta = ltheta-itheta + 2*pi*n
+        if ltheta > itheta:
+            dtheta = ltheta-itheta - 2*pi*(n+2)
+        else:
+            dtheta = ltheta-itheta - 2*pi*(n+1)
     else:
         self.logger.log(f'!（非公式機能）rotのnパラメータが0です !')
         self.logger.log(f'（非公式機能）rot: False としますが、意図しない演出になっています。')
