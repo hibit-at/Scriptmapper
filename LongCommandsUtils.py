@@ -102,6 +102,8 @@ def rot(self, dur, text, line):
     ixr, iyr, izr = line.start.rot.unpack()
     lxp, lyp, lzp = line.end.pos.unpack()
     lxr, lyr, lzr = line.end.rot.unpack()
+    ixr = (ixr + 180) % 360 - 180
+    lxr = (lxr + 180) % 360 - 180
     iFOV = line.start.fov
     lFOV = line.end.fov
     ir = sqrt(ixp**2+izp**2)
