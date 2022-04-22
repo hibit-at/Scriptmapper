@@ -117,9 +117,9 @@ def rot(self, dur, text, line):
             dtheta = ltheta-itheta + 2*pi*n
     elif n < 0:
         if ltheta > itheta:
-            dtheta = ltheta-itheta - 2*pi*(n+2)
+            dtheta = ltheta-itheta + 2*pi*n
         else:
-            dtheta = ltheta-itheta - 2*pi*(n+1)
+            dtheta = ltheta-itheta + 2*pi*(n+1)
     else:
         self.logger.log(f'!（非公式機能）rotのnパラメータが0です !')
         self.logger.log(f'（非公式機能）rot: False としますが、意図しない演出になっています。')
