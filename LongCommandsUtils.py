@@ -42,7 +42,7 @@ def rotate(self, text, dur):
         else:
             s2 = s1
     self.logger.log(f'パラメータ r1:{r1} h1:{h1} a:{a} o:{o} s1:{s1} j:{j} w:{w} r2:{r2} h2:{h2} s2:{s2}')
-    span = max(1/30, dur/36)
+    span = max(1/30, dur/abs(w/10))
     spans = []
     while dur > 0:
         min_span = min(span, dur)
@@ -85,11 +85,8 @@ def rot(self, dur, text, line):
     if len(param) >= 2:
         n = eval(param[1])
         o = 0
-        p = 1
         if len(param) >= 3:
             o = eval(param[2])
-        if len(param) >= 4:
-            p = eval(param[3])
     else:
         self.logger.log(f'!（非公式機能）rotの後の数値が不正です !')
         self.logger.log(f'（非公式機能）rot: False としますが、意図しない演出になっています。')
