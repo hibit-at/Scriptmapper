@@ -42,7 +42,8 @@ def rotate(self, text, dur):
         else:
             s2 = s1
     self.logger.log(f'パラメータ r1:{r1} h1:{h1} a:{a} o:{o} s1:{s1} j:{j} w:{w} r2:{r2} h2:{h2} s2:{s2}')
-    span = max(1/30, dur/abs(w/10))
+    p = 5 if w < 360 else 10
+    span = max(1/30, dur/abs(w/p))
     spans = []
     while dur > 0:
         min_span = min(span, dur)
@@ -123,7 +124,8 @@ def rot(self, dur, text, line):
         self.logger.log(line.start)
         self.logger.log(line.end)
         return
-    span = max(1/30, dur/degrees(abs(dtheta)/10))
+    p = 5 if dtheta < 2*pi else 10
+    span = max(1/30, dur/degrees(abs(dtheta)/p))
     spans = []
     while dur > 0:
         min_span = min(span, dur)
