@@ -206,7 +206,7 @@ class ScriptMapper:
             new_line = Line(dur)
             if self.offset > 0:
                 new_line.duration = max(0, new_line.duration - self.offset)
-                self.logger.log(f'offset コマンドにより、この箇所は {dur} 秒短縮されます。')
+                self.logger.log(f'offset コマンドにより、この箇所は {self.offset} 秒短縮されます。')
                 self.offset = 0
             new_line.visibleDict = deepcopy(self.visibleObject.state)
             new_line.turnToHead = self.turnToHead
