@@ -97,13 +97,6 @@ def rot(self, dur, text, line):
         self.logger.log(line.start)
         self.logger.log(line.end)
         return
-    span = max(1/30, dur/36) / p
-    spans = []
-    while dur > 0:
-        min_span = min(span, dur)
-        spans.append(min_span)
-        dur -= min_span
-    span_size = len(spans)
     ixp, iyp, izp = line.start.pos.unpack()
     ixr, iyr, izr = line.start.rot.unpack()
     lxp, lyp, lzp = line.end.pos.unpack()
@@ -133,9 +126,13 @@ def rot(self, dur, text, line):
         self.logger.log(line.start)
         self.logger.log(line.end)
         return
-    self.logger.log(f'itheta: {itheta}, {atan2(izp, ixp)}')
-    self.logger.log(f'ltheta: {ltheta}, {atan2(lzp, lxp)}')
-    self.logger.log(f'dtheta: {dtheta}')
+    span = max(1/30, dur/degrees(abs(dtheta)/10))
+    spans = []
+    while dur > 0:
+        min_span = min(span, dur)
+        spans.append(min_span)
+        dur -= min_span
+    span_size = len(spans)
     for i in range(span_size):
         new_line = Line(spans[i])
         new_line.visibleDict = deepcopy(self.visibleObject.state)
