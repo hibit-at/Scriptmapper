@@ -1,5 +1,5 @@
 from random import random
-from math import atan2, pi, sin, cos, tan, degrees, radians, sqrt
+from math import atan2, pi, sin, cos, degrees, sqrt
 from copy import deepcopy
 from BasicElements import Pos, Rot, Line
 
@@ -81,9 +81,15 @@ def rotate(self, text, dur):
 
 
 def rot(self, dur, text, line):
-    if len(param := text[3:].split('_')) == 3:
+    param = text[3:].split('_')
+    if len(param) >= 2:
         n = eval(param[1])
-        o = eval(param[2])
+        o = 0
+        p = 1
+        if len(param) >= 3:
+            o = eval(param[2])
+        if len(param) >= 4:
+            p = eval(param[3])
     else:
         self.logger.log(f'!（非公式機能）rotの後の数値が不正です !')
         self.logger.log(f'（非公式機能）rot: False としますが、意図しない演出になっています。')
@@ -91,7 +97,7 @@ def rot(self, dur, text, line):
         self.logger.log(line.start)
         self.logger.log(line.end)
         return
-    span = max(1/30, dur/36)
+    span = max(1/30, dur/36) / p
     spans = []
     while dur > 0:
         min_span = min(span, dur)
