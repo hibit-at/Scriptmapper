@@ -49,6 +49,7 @@ def env_command(self, text) -> None:
         param = get_param(self, text, 6, 0)
         self.logger.log(f'offset コマンドを検出。次のコマンドのオフセット期間を {param} 秒短縮します。')
         self.offset = param
+        return
     visibleObjects = ['avatar', 'ui', 'wallFrame',
                       'wall', 'saber', 'notes', 'debris']
     for visibleObject in visibleObjects:
