@@ -96,6 +96,7 @@ class Line:
         self.isNext = False
         self.ease = ''
         self.rot = ''
+        self.vib = ''
 
     def __str__(self) -> str:
         return (f'{self.duration:6.2f} {self.start} {self.end}')

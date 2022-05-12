@@ -14,7 +14,7 @@ from BookmarkUtils import copy_process, fill_process, raw_process
 from CommandUtils import long_command, parse_command
 from EnvCommandUtils import env_command
 from EaseUtils import ease
-from LongCommandsUtils import rot
+from LongCommandsUtils import rot, vib
 
 
 class ScriptMapper:
@@ -240,6 +240,9 @@ class ScriptMapper:
                 if transition_command[:3].lower() == 'rot':
                     new_line.rot = transition_command
                     self.logger.log(f'（非公式機能）rot に文字列を確認しましたが、回転の処理は、next の後に行う必要があるため、後で再計算します。')
+                if transition_command[:3].lower() == 'vib':
+                    new_line.vib = transition_command
+                    self.logger.log(f'（非公式機能）vib に文字列を確認しましたが、vibroの処理は、next の後に行う必要があるため、後で再計算します。')
             self.lines.append(new_line)
             self.logger.log(f'start {new_line.start}')
             self.logger.log(f'end {new_line.end}')
@@ -270,6 +273,16 @@ class ScriptMapper:
         for org in original:
             if org.rot != '':
                 rot(self, org.duration, org.rot, org)
+            else:
+                self.lines.append(org)
+
+    def vib_calc(self):
+        self.logger.log('\n（非公式機能）vibの処理が臨時的にここにログに出されます。')
+        original = deepcopy(self.lines)
+        self.lines = []
+        for org in original:
+            if org.vib != '':
+                vib(self, org.duration, org.vib, org)
             else:
                 self.lines.append(org)
 
