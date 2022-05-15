@@ -82,19 +82,21 @@ def rotate(self, text, dur):
 
 
 def rot(self, dur, text, line):
-    param = text[3:].split('_')
-    if len(param) >= 2:
-        n = eval(param[1])
-        o = 0
-        if len(param) >= 3:
-            o = eval(param[2])
-    else:
-        self.logger.log(f'!（非公式機能）rotの後の数値が不正です !')
-        self.logger.log(f'（非公式機能）rot: False としますが、意図しない演出になっています。')
-        self.lines.append(line)
-        self.logger.log(line.start)
-        self.logger.log(line.end)
-        return
+    n = None
+    o = 0
+    for param in text[3:].split('_'):
+        try:
+            if n is None:
+                n = float(eval(param))
+            else:
+                o = float(eval(param))
+        except:
+            self.logger.log(f'!（非公式機能）rotの後の数値が不正です !')
+            self.logger.log(f'（非公式機能）rot: False としますが、意図しない演出になっています。')
+            self.lines.append(line)
+            self.logger.log(line.start)
+            self.logger.log(line.end)
+            return
     ixp, iyp, izp = line.start.pos.unpack()
     ixr, iyr, izr = line.start.rot.unpack()
     lxp, lyp, lzp = line.end.pos.unpack()
@@ -190,7 +192,7 @@ def vibro(self, dur, param):
 def vib(self, dur, text, line):
     try:
         param = float(eval(text[3:]))
-    except ValueError:
+    except:
         self.logger.log(f'!（非公式機能）vibの後の数値が不正です !')
         self.logger.log(f'（非公式機能）vib: False としますが、意図しない演出になっています。')
         self.lines.append(line)
