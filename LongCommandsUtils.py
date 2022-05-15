@@ -88,6 +88,7 @@ def rot(self, dur, text, line):
         try:
             if n is None:
                 n = float(eval(param))
+                assert(n!=0)
             else:
                 o = float(eval(param))
         except:
