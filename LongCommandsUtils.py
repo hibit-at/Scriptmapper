@@ -201,8 +201,10 @@ def vib(self, dur, text, line):
     ixr, iyr, izr = line.start.rot.unpack()
     lxp, lyp, lzp = line.end.pos.unpack()
     lxr, lyr, lzr = line.end.rot.unpack()
-    ixr = (ixr + 180) % 360 - 180
-    lxr = (lxr + 180) % 360 - 180
+    iyr = iyr % 360
+    lyr = lyr % 360
+    iyr = iyr if abs(lyr-iyr) < 180 else (iyr+180) % 360 - 180
+    lyr = lyr if abs(lyr-iyr) < 180 else (lyr+180) % 360 - 180
     iFOV = line.start.fov
     lFOV = line.end.fov
     dx,dy,dz = 0,0,0
