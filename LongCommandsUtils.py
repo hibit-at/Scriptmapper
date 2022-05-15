@@ -217,24 +217,19 @@ def vib(self, dur, text, line):
         min_span = min(span, dur)
         spans.append(min_span)
         dur -= min_span
+    spans = [sum(spans)/len(spans)]*len(spans)
     span_size = len(spans)
     for i in range(span_size):
         new_line = Line(spans[i])
         new_line.visibleDict = deepcopy(self.visibleObject.state)
         new_line.start = deepcopy(self.lastTransform)
-        px1 = ixp + (lxp-ixp)*i/span_size
-        py1 = iyp + (lyp-iyp)*i/span_size
-        pz1 = izp + (lzp-izp)*i/span_size
-        rx1 = ixr + (lxr-ixr)*i/span_size
-        ry1 = iyr + (lyr-iyr)*i/span_size
-        rz1 = izr + (lzr-izr)*i/span_size
-        fov1 = iFOV + (lFOV-iFOV)*i/span_size
-        new_line.start.pos = Pos(px1+dx, py1+dy, pz1+dz)
-        new_line.start.rot = Rot(rx1, ry1, rz1)
-        new_line.start.fov = fov1
-        dx += round(random()/6, 3)-1/12
-        dy += round(random()/6, 3)-1/12
-        dz += round(random()/6, 3)-1/12
+        if i==0:
+            new_line.start.pos = Pos(ixp, iyp, izp)
+            new_line.start.rot = Rot(ixr, iyr, izr)
+            new_line.start.fov = iFOV
+        dx = round(random()/6, 3)-1/12
+        dy = round(random()/6, 3)-1/12
+        dz = round(random()/6, 3)-1/12
         px2 = ixp + (lxp-ixp)*(i+1)/span_size
         py2 = iyp + (lyp-iyp)*(i+1)/span_size
         pz2 = izp + (lzp-izp)*(i+1)/span_size
@@ -245,6 +240,11 @@ def vib(self, dur, text, line):
         new_line.end.pos = Pos(px2+dx, py2+dy, pz2+dz)
         new_line.end.rot = Rot(rx2, ry2, rz2)
         new_line.end.fov = fov2
+        if i==span_size-1:
+            new_line.end.pos = Pos(lxp, lyp, lzp)
+            new_line.end.rot = Rot(lxr, lyr, lzr)
+            new_line.end.fov = lFOV
         self.lastTransform = new_line.end
         self.logger.log(new_line.start)
         self.lines.append(new_line)
+    
