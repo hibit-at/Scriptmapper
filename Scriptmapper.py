@@ -42,6 +42,9 @@ def mapping(file_path):
     # rotの処理
     mapper.rot_calc()
 
+    # vibの処理
+    mapper.vib_calc()
+
     # レンダリング
     mapper.render_json()
 
