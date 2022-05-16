@@ -41,7 +41,8 @@ def rotate(self, text, dur):
             s2 = param[9]
         else:
             s2 = s1
-    self.logger.log(f'パラメータ r1:{r1} h1:{h1} a:{a} o:{o} s1:{s1} j:{j} w:{w} r2:{r2} h2:{h2} s2:{s2}')
+    self.logger.log(
+        f'パラメータ r1:{r1} h1:{h1} a:{a} o:{o} s1:{s1} j:{j} w:{w} r2:{r2} h2:{h2} s2:{s2}')
     p = 5 if w < 360 else 10
     span = max(1/30, dur/abs(w/p))
     spans = []
@@ -88,12 +89,12 @@ def rot(self, dur, text, line):
         try:
             if n is None:
                 n = float(eval(param))
-                assert(n!=0)
+                assert(n != 0)
             else:
                 o = float(eval(param))
         except:
-            self.logger.log(f'!（非公式機能）rotの後の数値が不正です !')
-            self.logger.log(f'（非公式機能）rot: False としますが、意図しない演出になっています。')
+            self.logger.log(f'! rotの後の数値が不正です !')
+            self.logger.log(f'rot: False としますが、意図しない演出になっています。')
             self.lines.append(line)
             self.logger.log(line.start)
             self.logger.log(line.end)
@@ -108,8 +109,8 @@ def rot(self, dur, text, line):
     lFOV = line.end.fov
     ir = sqrt(ixp**2+izp**2)
     lr = sqrt(lxp**2+lzp**2)
-    itheta = atan2(izp, ixp)%(2*pi)
-    ltheta = atan2(lzp, lxp)%(2*pi)
+    itheta = atan2(izp, ixp) % (2*pi)
+    ltheta = atan2(lzp, lxp) % (2*pi)
     if n > 0:
         if ltheta > itheta:
             dtheta = ltheta-itheta + 2*pi*(n-1)
@@ -121,8 +122,8 @@ def rot(self, dur, text, line):
         else:
             dtheta = ltheta-itheta + 2*pi*(n+1)
     else:
-        self.logger.log(f'!（非公式機能）rotのnパラメータが0です !')
-        self.logger.log(f'（非公式機能）rot: False としますが、意図しない演出になっています。')
+        self.logger.log(f'! rotのnパラメータが 0 です !')
+        self.logger.log(f'rot: False としますが、意図しない演出になっています。')
         self.lines.append(line)
         self.logger.log(line.start)
         self.logger.log(line.end)
@@ -165,6 +166,7 @@ def rot(self, dur, text, line):
         self.logger.log(new_line.start)
         self.lines.append(new_line)
 
+
 def vibro(self, dur, param):
     steps = []
     bpm = self.bpm
@@ -190,12 +192,13 @@ def vibro(self, dur, param):
         self.logger.log(new_line.start)
         self.lines.append(new_line)
 
+
 def vib(self, dur, text, line):
     try:
         param = float(eval(text[3:]))
     except:
-        self.logger.log(f'!（非公式機能）vibの後の数値が不正です !')
-        self.logger.log(f'（非公式機能）vib: False としますが、意図しない演出になっています。')
+        self.logger.log(f'! vibの後の数値が不正です !')
+        self.logger.log(f'vib: False としますが、意図しない演出になっています。')
         self.lines.append(line)
         self.logger.log(line.start)
         self.logger.log(line.end)
@@ -210,7 +213,7 @@ def vib(self, dur, text, line):
     lyr = lyr if abs(lyr-iyr) < 180 else (lyr+180) % 360 - 180
     iFOV = line.start.fov
     lFOV = line.end.fov
-    dx,dy,dz = 0,0,0
+    dx, dy, dz = 0, 0, 0
     spans = []
     bpm = self.bpm
     span = max(1/30, param*60/bpm)
@@ -224,7 +227,7 @@ def vib(self, dur, text, line):
         new_line = Line(spans[i])
         new_line.visibleDict = deepcopy(self.visibleObject.state)
         new_line.start = deepcopy(self.lastTransform)
-        if i==0:
+        if i == 0:
             new_line.start.pos = Pos(ixp, iyp, izp)
             new_line.start.rot = Rot(ixr, iyr, izr)
             new_line.start.fov = iFOV
@@ -241,11 +244,10 @@ def vib(self, dur, text, line):
         new_line.end.pos = Pos(px2+dx, py2+dy, pz2+dz)
         new_line.end.rot = Rot(rx2, ry2, rz2)
         new_line.end.fov = fov2
-        if i==span_size-1:
+        if i == span_size-1:
             new_line.end.pos = Pos(lxp, lyp, lzp)
             new_line.end.rot = Rot(lxr, lyr, lzr)
             new_line.end.fov = lFOV
         self.lastTransform = new_line.end
         self.logger.log(new_line.start)
         self.lines.append(new_line)
-    

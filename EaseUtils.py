@@ -253,7 +253,7 @@ def ease(self, dur, text, line):
     lzr = izr + (lzr - izr + 180) % 360 - 180
     iFOV = line.start.fov
     lFOV = line.end.fov
-    
+
     self.lastTransform = line.start
     for i in range(span_size):
         new_line = Line(spans[i])

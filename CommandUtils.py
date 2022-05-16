@@ -31,7 +31,7 @@ def adjust(self, transform, dollar_split) -> None:
         for a in adjust_command:
             self.logger.log(f'調整コマンド {a} を確認')
             inital = a[0]
-            param = float(a[1:])
+            param = eval(a[1:])
             if inital == 'X':
                 transform.pos.x = param
             elif inital == 'Y':
@@ -55,7 +55,7 @@ def sequential(self, transform, text, under_split) -> None:
         after_under = under_split[1:]
         if text[:4] == 'dpos':
             for i, a in enumerate(after_under):
-                param = float(a)
+                param = eval(a)
                 self.logger.log(f'dpos シーケンシャル調整_{param}')
                 if i == 0:
                     transform.pos.x = param
@@ -68,7 +68,7 @@ def sequential(self, transform, text, under_split) -> None:
             transform.lookat(self.height, self.lastTransform)
         elif text[0] == 'q':
             for i, a in enumerate(after_under):
-                param = float(a)
+                param = eval(a)
                 self.logger.log(f'q シーケンシャル調整_{param}')
                 if i == 0:
                     transform.pos.x = param
