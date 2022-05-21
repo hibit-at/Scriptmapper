@@ -233,20 +233,19 @@ class ScriptMapper:
             transition_command = parse[2]
             self.logger.log(f'transition : {transition_command}')
             if transition_command != 'False':
-                if transition_command[:4].lower() == 'ease':
-                    # ease(self, dur, ease_command, new_line)
-                    new_line.ease = transition_command
-                    self.logger.log(
-                        f'（工事中）easeTransition に文字列を確認しましたが、イージングの処理は、next の後に行う必要があるため、後で再計算します。')
-                    self.logger.log(f'ログを含めて後日修正。')
                 if transition_command[:3].lower() == 'rot':
                     new_line.rot = transition_command
                     self.logger.log(
                         f'rot に文字列を確認しましたが、回転の処理は、next の後に行う必要があるため、後で再計算します。')
-                if transition_command[:3].lower() == 'vib':
+                elif transition_command[:3].lower() == 'vib':
                     new_line.vib = transition_command
                     self.logger.log(
                         f'vib に文字列を確認しましたが、vibroの処理は、next の後に行う必要があるため、後で再計算します。')
+                else:
+                    # ease(self, dur, ease_command, new_line)
+                    new_line.ease = transition_command
+                    self.logger.log(
+                        f'（工事中）easeTransition に文字列を確認しましたが、イージングの処理は、next の後に行う必要があるため、後で再計算します。')
             self.lines.append(new_line)
             self.logger.log(f'start {new_line.start}')
             self.logger.log(f'end {new_line.end}')

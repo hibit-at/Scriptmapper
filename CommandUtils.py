@@ -2,7 +2,7 @@ from BasicElements import Pos, Rot
 from LongCommandsUtils import rotate, vibro
 from PresetCommandsUtils import generate
 from GeneralUtils import get_param
-
+import math
 
 commands = {
     'random': 4,
@@ -127,6 +127,13 @@ def long_command(self, text, dur) -> bool:
 
 
 def parse_command(self, transform, text) -> None:
+    # orig_check
+    for key in self.manual.keys():
+        if text == key:
+            self.logger.log(f'オリジナルコマンド {key} を検出')
+            # command = self.manual[key]
+            orig_command(self, key, transform)
+            return
     # dollar_check
     dollar_split = text.split('$')
     pre_dollar = dollar_split[0]
@@ -137,12 +144,6 @@ def parse_command(self, transform, text) -> None:
         pre_dollar = 'q_' + pre_dollar[1:]
     under_split = pre_dollar.split('_')
     text = under_split[0]
-    for key in self.manual.keys():
-        if text == key:
-            self.logger.log(f'オリジナルコマンド {key} を検出')
-            # command = self.manual[key]
-            orig_command(self, key, transform)
-            return
     for c in commands:
         if text.startswith(c):
             leng = len(c)
