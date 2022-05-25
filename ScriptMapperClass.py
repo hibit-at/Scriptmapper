@@ -295,6 +295,8 @@ class ScriptMapper:
         template['TurnToHeadUseCameraSetting'] = False
         template['Movements'] = []
         for line in self.lines:
+            if line.duration < 0.009:
+                continue
             movement = {}
             movement['StartPos'] = {'x': line.start.pos.x,
                                     'y': line.start.pos.y,
