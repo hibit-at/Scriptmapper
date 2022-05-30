@@ -138,7 +138,8 @@ def rot(self, dur, text, line):
     span_size = len(spans)
     for i in range(span_size):
         new_line = Line(spans[i])
-        new_line.visibleDict = deepcopy(self.visibleObject.state)
+        # new_line.visibleDict = deepcopy(self.visibleObject.state)
+        new_line.visibleDict = deepcopy(line.visibleDict)
         theta1 = itheta + dtheta*i/span_size
         r1 = ir + (lr-ir)*i/span_size
         h1 = iyp + (lyp-iyp)*i/span_size
@@ -225,7 +226,8 @@ def vib(self, dur, text, line):
     span_size = len(spans)
     for i in range(span_size):
         new_line = Line(spans[i])
-        new_line.visibleDict = deepcopy(self.visibleObject.state)
+        # new_line.visibleDict = deepcopy(self.visibleObject.state)
+        new_line.visibleDict = deepcopy(line.visibleDict)
         new_line.start = deepcopy(self.lastTransform)
         if i == 0:
             new_line.start.pos = Pos(ixp, iyp, izp)
