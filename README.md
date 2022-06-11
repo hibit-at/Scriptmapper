@@ -162,8 +162,16 @@ ex) `fill1/4,random3,zoom2`（グリッド 1/4 間隔で`random3,zoom2`を記入
 
 ex) `fill2,mirror`（グリッド 2 間隔で`mirror`を記入し続ける）
 
-## copyとfillの併用
+## copy と fill の併用
 
 copy範囲に他のスクリプトを含めることはできません（そうなった場合、挟まれたコマンドがcopyの終点になってしまいます）。しかし、fill内にcopyを含めることはできます。
 
 ex) `fill2,copy40` fillの終点まで、グリッド40~42の内容が反復されることになります
+
+# Advanced-Wiki
+
+更に細かい機能については、[Wiki](https://github.com/hibit-at/Scriptmapper/wiki) にまとめております。
+
+# Chromapper-Cameramovement について
+
+リュナンさんが開発してくださった [ChroMapper-CameraMovement](https://github.com/rynan4818/ChroMapper-CameraMovement) を使うと、マッピングソフト上でカメラの動きを確認できるだけでなく、スクリプト作成の補助機能が色々使えます。本格的にカメラスクリプトにこだわりたい方には是非ともお勧めします。マッピングソフトは [ChroMapper](https://github.com/Caeden117/ChroMapper) になりますのでご注意ください。
