@@ -34,7 +34,8 @@ easetypes = ['InSine',
              'InOutBack',
              'InBounce',
              'OutBounce',
-             'InOutBounce'
+             'InOutBounce',
+             'Drift',
              ]
 
 
@@ -200,13 +201,46 @@ def InOutBounce(t):
     return (1 - OutBounce(1 - 2 * t)) / 2 if t < 0.5 else (1 + OutBounce(2 * t - 1)) / 2
 
 
+def Drift(t, x=6, y=6):
+    x /= 10
+    y /= 10
+    if x == 1 and y == 1:
+        return t
+    if x > y:
+        hy = 0
+        hx = (x-y)/(1-y)
+    else:
+        hx = 0
+        hy = (y-x)/(1-x)
+    if t >= x:
+        return (1-t)/(1-x)*y + (t-x)/(1-x)
+    else:
+        ng = 0
+        ok = 1
+        while abs(ng-ok) > 1e-10:
+            mid = ng + ok
+            mid /= 2
+            criteria = 3*(1-mid)*mid*mid*hx + mid*mid*mid*x
+            if criteria >= t:
+                ok = mid
+            else:
+                ng = mid
+        return 3*(1-ok)*ok*ok*hy + ok*ok*ok*y
+
+
 def interpolate(start, end, rate):
     return start*(1-rate) + end*rate
 
 
-def ease(self, dur, text, line):
+def ease(self, dur, text : str, line):
     u_text = text.upper()
     flag = 0
+    dx = 6
+    dy = 6
+    if len(u_text.split('_')) > 2:
+        dx = float(u_text.split('_')[1])
+        dy = float(u_text.split('_')[2])
+    print(dx, dy)
     if u_text != 'EASE':
         if u_text[:4] == 'EASE':
             u_text = u_text[4:]
@@ -259,7 +293,10 @@ def ease(self, dur, text, line):
         new_line = Line(spans[i])
         new_line.visibleDict = deepcopy(line.visibleDict)
         t = sum(spans[:(i+1)])/init_dur
-        rate = easefunc(t)
+        if easefunc != Drift:
+            rate = easefunc(t)
+        else:
+            rate = Drift(t,dx,dy)
         new_line.start = deepcopy(self.lastTransform)
         endPos = Pos(
             interpolate(ixp, lxp, rate),
