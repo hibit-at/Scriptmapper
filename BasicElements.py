@@ -43,6 +43,10 @@ class Pos:
     def __str__(self) -> str:
         return(f'({self.x:.2f},{self.y:.2f},{self.z:.2f})')
 
+    def __eq__(self, obj):
+        if obj is None or type(self) != type(obj):
+            return False
+        return self.x == obj.x and self.y == obj.y and self.z == obj.z
 
 class Rot:
 
@@ -57,6 +61,10 @@ class Rot:
     def __str__(self) -> str:
         return(f'({self.x:.2f},{self.y:.2f},{self.z:.2f})')
 
+    def __eq__(self, obj):
+        if obj is None or type(self) != type(obj):
+            return False
+        return self.x == obj.x and self.y == obj.y and self.z == obj.z
 
 class Transform:
     def __init__(self, pos=Pos(), rot=Rot(), fov=60):
@@ -81,6 +89,10 @@ class Transform:
     def __str__(self) -> str:
         return(f'POS:{self.pos}, ROT:{self.rot}, FOV:{self.fov}')
 
+    def __eq__(self, obj):
+        if obj is None or type(self) != type(obj):
+            return False
+        return self.pos == obj.pos and self.rot == obj.rot and self.fov == obj.fov
 
 class Line:
 

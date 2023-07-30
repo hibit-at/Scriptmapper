@@ -1,5 +1,5 @@
 from BasicElements import Pos, Rot
-from LongCommandsUtils import rotate, vibro
+from LongCommandsUtils import rotate, vibro, script
 from PresetCommandsUtils import generate
 from GeneralUtils import get_param
 import math
@@ -122,6 +122,12 @@ def long_command(self, text, dur) -> bool:
         param = get_param(self, text, 5, def_value=1/4)
         self.logger.log('vibro コマンドを確認 ', param)
         vibro(self, dur, param)
+        return True
+    # script
+    if text[:7] == 'script,':
+        self.logger.log(text)
+        self.logger.log('script コマンドを確認 ')
+        script(self, text, dur)
         return True
     return False
 

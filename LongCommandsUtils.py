@@ -1,3 +1,6 @@
+import os
+import json
+
 from random import random
 from math import atan2, pi, sin, cos, degrees, sqrt
 from copy import deepcopy
@@ -253,3 +256,75 @@ def vib(self, dur, text, line):
         self.lastTransform = new_line.end
         self.logger.log(new_line.start)
         self.lines.append(new_line)
+
+
+def script(self, text, dur):
+    path_dir = self.path_obj.parent
+    script_dir = os.path.join(path_dir, 'script')
+    if not os.path.exists(script_dir):
+        self.logger.log('! script フォルダが見つかりません。プログラムを終了します !')
+        input()
+        exit()
+    script_file = text[7:] + '.json'
+    script_path = os.path.join(script_dir, script_file)
+    if not os.path.exists(script_path):
+        self.logger.log(f'! {script_file} が見つかりません。プログラムを終了します !')
+        input()
+        exit()
+    f = open(script_path, 'rb')
+    j = json.load(f)
+    if 'Movements' in j:
+        sum_dur = 0
+        movements = j['Movements']
+        for m in movements:
+            sum_dur += m['Duration']
+            if 'Delay' in m and m['Delay'] > 0:
+                self.logger.log(f'! {script_file} にDelay設定があります !')
+                self.logger.log(f'Delayは非対応のため意図しない演出になっています。')
+            if 'EaseTransition' in m and m['EaseTransition']:
+                self.logger.log(f'! {script_file} にEaseTransition設定があります !')
+                self.logger.log(f'EaseTransitionは非対応のため意図しない演出になっています。')
+        ratio_dur = dur / sum_dur
+        script_lines = []
+        for m in movements:
+            new_line = Line(m['Duration'] * ratio_dur)
+            new_line.visibleDict = deepcopy(self.visibleObject.state)
+            v = m['StartPos']
+            new_line.start.pos = Pos(v['x'], v['y'], v['z'])
+            new_line.start.fov = v['FOV']
+            v = m['StartRot']
+            new_line.start.rot = Rot(v['x'], v['y'], v['z'])
+            if 'StartHeadOffset' in m:
+                v = m['StartHeadOffset']
+                new_line.startHeadOffset = Pos(v['x'], v['y'], v['z'])
+            v = m['EndPos']
+            new_line.end.pos = Pos(v['x'], v['y'], v['z'])
+            new_line.end.fov = v['FOV']
+            v = m['EndRot']
+            new_line.end.rot = Rot(v['x'], v['y'], v['z'])
+            if 'EndHeadOffset' in m:
+                v = m['EndHeadOffset']
+                new_line.endHeadOffset = Pos(v['x'], v['y'], v['z'])
+            if 'TurnToHead' in m:
+                new_line.turnToHead = m['TurnToHead']
+            if 'TurnToHeadHorizontal' in m:
+                new_line.turnToHeadHorizontal = m['TurnToHeadHorizontal']
+            script_lines.append(new_line)
+        size = len(script_lines)
+        for i in range(size):
+            l = script_lines[i]
+            if l.duration < 0.017:  #間隔を1/60sec以上にする
+                if i+1 < size and l.end == script_lines[i+1].start:
+                    script_lines[i+1].start = l.start
+                    script_lines[i+1].duration += l.duration
+                    l.duration = 0
+        for s in script_lines:
+            if s.duration == 0:
+                continue
+            if s.duration < 0.01:
+                if self.lines[-1].end == s.start:
+                    self.lines[-1].end = s.end
+                    self.lines[-1].duration += s.duration
+                    continue
+            self.logger.log(s.start)
+            self.lines.append(s)
