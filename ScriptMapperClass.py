@@ -101,19 +101,40 @@ class ScriptMapper:
         dummyend_grid = 100
         f = open(self.path_obj, 'r')
         j = json.load(f)
-        notes = j['_notes']
+        notes = None
+        
+        if '_notes' in j:
+            self.logger.log('バージョン検出：V2 譜面\n')
+        else:
+            self.logger.log('バージョン検出：V3 譜面\n')
+        
+        if '_notes' in j:
+            notes = j['_notes']
+        elif 'colorNotes' in j:
+            notes = j['colorNotes']  # V3
         if len(notes) > 0:
-            dummyend_grid = notes[-1]['_time']+100
+            if '_time' in notes[-1]:
+                dummyend_grid = notes[-1]['_time']+100
+            elif 'b' in notes[-1]:
+                dummyend_grid = notes[-1]['b'] + 100  # V3
         bookmarks = []
         if '_customData' in j.keys():
             bookmarks = j['_customData']['_bookmarks']
+        elif 'customData' in j.keys():
+            bookmarks = j['customData']['bookmarks']  # V3
         else:
             bookmarks = j['_bookmarks']
         if len(bookmarks) == 0:
             self.logger.log('この譜面にはブックマークが含まれていません。プログラムを終了します。')
             exit()
         else:
-            dummyend_grid = max(dummyend_grid, bookmarks[-1]['_time'] + 100)
+            if '_time' in bookmarks[-1]:
+                dummyend_grid = max(
+                    dummyend_grid, bookmarks[-1]['_time'] + 100)
+            elif 'b' in bookmarks[-1]:
+                dummyend_grid = max(
+                    dummyend_grid, bookmarks[-1]['b'] + 100)  # V3
+
         bookmarks.append({'_time': dummyend_grid, '_name': 'dummyend'})
         self.dummyend_grid = dummyend_grid
         self.logger.log(f'ダミーエンドをグリッド {dummyend_grid} に設定。')
